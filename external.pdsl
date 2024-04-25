@@ -1,0 +1,32 @@
+yms = softwareSystem "YMS" "Система управления транспортными дворами" "external" {
+    perspectives {
+        "Integration" "Передача данных в реальном времени"
+    }    
+}
+
+mdm = softwareSystem "MDM" "Система управления справочными данными" "external" {
+    perspectives {
+        "Integration" "Синхронизация по расписанию"
+    }
+}
+
+erp = softwareSystem "ERP" "Система планирования ресурсов предприятия" "external" {
+    perspectives {
+        "Integration" "Двусторонний обмен"
+    }
+}
+tms = softwareSystem "TMS" "Система управления транспортными операциями" "external" {
+    perspectives {
+        "Integration" "Передача данных в реальном времени"
+    }
+}
+idm = softwareSystem "IDM" "Система идентификации пользователей" "external" {
+    perspectives {
+        "Integration" "SSO"
+    }
+}
+ams = softwareSystem "AMS" "Система управления доступом пользователей" "external" {
+    perspectives {
+        "Integration" "Авторизация в реальном времени "
+    }
+}

@@ -7,9 +7,9 @@
 //darker
 !const RED2  "#d9021c" 
 //basic
-!const RED1  "#ff4d5c" 
+!const RED1  "#f22d3e" 
 //light
-!const RED0  "#b21222" 
+!const RED0  "#ff4d5c" 
 //desaturated
 !const CAMUNDA  "#FC5D0D"
 !const SPRING  "#6EB23F"
@@ -18,6 +18,9 @@
 
 workspace "Базовые стили" {
     views {
+        branding {
+            font "Fira Code" https://fonts.googleapis.com/css2?family=Fira+Code
+        }
         styles {
 
             relationship "Relationship" {
@@ -29,12 +32,18 @@ workspace "Базовые стили" {
             relationship "HTTP" {
                 color ${BLUE3}
             } 
-            // relationship LEAP_INTERACTION_TAG 
-            //         .thickness 2 
-            //         .style LineStyle.Dashed ;
-            // relationship Tags.ASYNCHRONOUS 
-            //         .style LineStyle.Dashed ;
-            relationship "GET" {
+            relationship leap { 
+                thickness 2 
+                style Dashed
+            }
+            relationship async { 
+                style Dotted 
+            }
+            relationship gRPC { 
+                color ${CAMUNDA}
+                style Dotted 
+            }
+            relationship GET {
                 thickness 1
                 color ${GREEN}
                 routing curved
@@ -49,14 +58,11 @@ workspace "Базовые стили" {
                 strokeWidth 8 
                 background ${BLUE0} 
             }
-
-            element "solvo" {
-                stroke ${RED2}
-            }
+            
 
             element "Group"  {
                 fontSize 45 
-                color ${RED2}
+               // color ${RED2}
             }
 
             element "Boundary"  {
@@ -74,7 +80,6 @@ workspace "Базовые стили" {
                 strokeWidth 5 
                 stroke ${RED2} 
                 fontSize 17 
-                color ${BLUE3}
             }
 
             element "Analyst"  {
@@ -94,9 +99,12 @@ workspace "Базовые стили" {
                 width 450 
                 background white
                 strokeWidth 12 
-                stroke ${BLUE3} 
+                stroke ${RED2} 
                 fontSize 28 
-                color ${BLUE3} 
+            }
+
+            element "external" {
+                stroke ${FONT} 
             }
 
             element "mobile" {
@@ -131,6 +139,11 @@ workspace "Базовые стили" {
                 color white
             }
 
+            element "solvo" {
+                background ${RED1}
+                stroke ${RED2}
+            }
+
             element "db" {
                 shape Cylinder 
                 width 300 
@@ -157,6 +170,10 @@ workspace "Базовые стили" {
             element "Camunda"  {         
                 background ${CAMUNDA} 
             }
+            element "Group:Camunda Platform"  {
+                color ${CAMUNDA}
+            }
+
 
             element "Spring Cloud" {
                 background ${SPRING} 
@@ -173,7 +190,7 @@ workspace "Базовые стили" {
                 metadata false 
                 width 400 
                 height 150 
-                background ${BLUE1} 
+                background ${BLUE0} 
                 strokeWidth 4 
                 //.strokeauto
                 fontSize 16 
@@ -190,9 +207,10 @@ workspace "Базовые стили" {
                 strokeWidth 1 
             }
 
-            element API_TAG {
+            element API {
                 shape Circle 
                 width 200 
+                metadata false
             }
 
         }
