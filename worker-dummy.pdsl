@@ -1,0 +1,11 @@
+technology "Spring Boot" 
+tags "Worker" "solvo"
+perspectives {
+    "Security" "OAuth 2.0"
+    "Performance" "Эффективное выполнение бизнес-логики"
+    "Scalability" "Горизонтальная масштабируемость для параллельной обработки
+    "Availability" "Высокая доступность с отказоустойчивостью"
+}
+component "Controller" "REST-контролер" "Spring MVC"
+component "Service" "Сервисный слой" "Spring Boot Service"
+component "Repository" "Слой хранения" "Spring Data JPA"
