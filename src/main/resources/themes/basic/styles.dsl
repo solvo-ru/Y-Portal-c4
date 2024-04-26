@@ -2,7 +2,7 @@
 !const BLUE3  "#063e63"
 !const BLUE2  "#0b5889"
 !const BLUE1  "#4d88b7"
-!const BLUE0  "#0b5889"
+!const BLUE0  "#85BBF0"
 !const RED3  "#a5000d" 
 //darker
 !const RED2  "#d9021c" 

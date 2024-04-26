@@ -1,9 +1,3 @@
-yms = softwareSystem "YMS" "Система управления транспортными дворами" "external" {
-    perspectives {
-        "Integration" "Передача данных в реальном времени"
-    }    
-}
-
 mdm = softwareSystem "MDM" "Система управления справочными данными" "external" {
     perspectives {
         "Integration" "Синхронизация по расписанию"
