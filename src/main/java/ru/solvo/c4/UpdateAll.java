@@ -7,14 +7,15 @@ import com.structurizr.dsl.StructurizrDslParser;
 
 import java.io.File;
 
-public class CleanCreate extends AbstractRun {
+public class UpdateAll extends AbstractRun {
+    protected static final int LANDSCAPE_WORKSPACE_ID = 4;
+    protected static final int CONDUCTOR_WORKSPACE_ID = 5;
+    protected static final int CLOUD_WORKSPACE_ID = 5;
 
     public static void main(String[] args) throws Exception {
         SYSTEM_LANDSCAPE_WORKSPACE_METADATA = createAdminApiClient().createWorkspace();
-        //loadWorkspaces();
         loadWorkspace(new File("src/main/resources/systems/conductor/workspace.dsl"));
         generateSystemLandscapeWorkspace();
-
     }
 
     private static void loadWorkspaces() throws Exception {

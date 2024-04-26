@@ -138,4 +138,8 @@ workspace extends ../../solvo-landscape.dsl {
         }
 
     }
+    views {
+        systemContext
+        
+    }
 }

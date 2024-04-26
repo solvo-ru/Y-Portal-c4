@@ -1,4 +1,4 @@
-workspace extends ../cloud/workspace.dsl {
+workspace extends ../../solvo-landscape.dsl {
 
     name "Системная Архитектура Портала Перевозчика"
     description "[Camunda Edition]"
@@ -159,7 +159,7 @@ workspace extends ../cloud/workspace.dsl {
             //     }
             // }
         }
-        // apiGateway -> zeebeGateway "" "gRPC" "gRPC"
+        yPortal.apiGateway -> bpm "выполнение user tasks" "gRPC" "gRPC"
         // apiGateway -> tasklist "управление процессами" "HTTP REST/JSON" "HTTP"
         // apiGateway -> operate "техподдержка" "HTTP REST/JSON" "HTTP"
         // apiGateway -> optimize "администрирование" "HTTP REST/JSON" "HTTP"
@@ -172,16 +172,16 @@ workspace extends ../cloud/workspace.dsl {
         yPortal.web -> yPortal.apiGateway "Отправляет запрос" "HTTPS REST/JSON" "HTTP"
         yPortal.app -> yPortal.apiGateway "Отправляет запрос" "HTTPS REST/JSON" "HTTP"
         //publicApi -> apiGateway "Отправляет запрос"
-        yPortal.trWorker -> bpm.zeebe "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.offerWorker -> bpm.zeebe "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.actorWorker -> bpm.zeebe "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.roleWorker -> bpm.zeebe "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.messageWorker -> bpm.zeebe "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.referenceWorker -> bpm.zeebe "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.shipmentWorker -> bpm.zeebe "Получает задачи" "gRPC long polling" "gRPC"
+        yPortal.trWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
+        yPortal.offerWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
+        yPortal.actorWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
+        yPortal.roleWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
+        yPortal.messageWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
+        yPortal.referenceWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
+        yPortal.shipmentWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
 
         
-        bpm.zeebe -> yms "Создает автовизит"
+        bpm -> yms "Создает автовизит"
         yPortal.referenceWorker -> mdm "НСИ sync"
         yPortal.referenceWorker -> erp "доступность ресурсов"
         yPortal.web -> tms "Отслеживание транспорта"
@@ -210,13 +210,13 @@ workspace extends ../cloud/workspace.dsl {
         //     autolayout lr
         // }
 
-        // Dynamic diagram for Bidding Workflow
-        // dynamic yPortal {
-        //     webPortal -> trWorker "1. Create TR"
-        //     trWorker -> offerWorker "2. Make a bid"
-        //     offerWorker -> trWorker "3. Collect bids"
-        //     trWorker -> trWorker "4. Choose winner"
-        // }
+        dynamic yPortal "yp-bidding" "Процесс заявки на перевозку" {
+            router -> yPortal.web "Создает заявку в web-форме"
+            yPortal.web -> yPortal.apiGateway "1. Create TR"
+            yPortal.apiGateway -> bpm "2. Make a bid"
+            offerWorker -> trWorker "3. Collect bids"
+            trWorker -> trWorker "4. Choose winner"
+        }
 
         // // Dynamic diagram for Transporting Workflow
         // dynamic yPortal{

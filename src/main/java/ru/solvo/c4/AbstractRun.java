@@ -8,6 +8,7 @@ import com.structurizr.configuration.WorkspaceScope;
 import com.structurizr.model.*;
 import com.structurizr.view.SystemLandscapeView;
 
+import java.util.Arrays;
 import java.util.List;
 
 class AbstractRun {
@@ -30,7 +31,7 @@ class AbstractRun {
     }
 
     protected static void enrichSystemLandscape(Workspace systemLandscapeWorkspace) throws Exception {
-        List<WorkspaceMetadata> workspaces = createAdminApiClient().getWorkspaces();
+        List<WorkspaceMetadata> workspaces = createAdminApiClient().getWorkspaces().stream().filter(workspaceMetadata -> workspaceMetadata.getId()>3 ).toList();;
         for (WorkspaceMetadata workspaceMetadata : workspaces) {
             WorkspaceApiClient workspaceApiClient = createWorkspaceApiClient(workspaceMetadata);
             workspaceApiClient.setWorkspaceArchiveLocation(null);

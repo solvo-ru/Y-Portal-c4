@@ -1,4 +1,4 @@
-workspace extends ../conductor/workspace.dsl {
+workspace extends ../../solvo-landscape.dsl {
 
     name "Компоненты облачной инфраструктуры"
     description ""
