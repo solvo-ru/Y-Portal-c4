@@ -16,9 +16,15 @@ workspace extends ../../solvo-landscape.dsl {
 
     model {
 
-        router = person "Логист" " "
-        dispatcher = person "Экспедитор" ""
-        transport = person "Водитель" ""
+        router = person "Логист" {
+            -> bpm "Выполняет UserTask" "Zeebe" "leap"
+        }
+        dispatcher = person "Экспедитор" "" {
+            -> bpm "Выполняет UserTask" "Zeebe" "leap"
+        }
+        transport = person "Водитель" "" {
+            -> bpm "Выполняет UserTask" "Zeebe" "leap"
+        }
 
         !extend yPortal {
             description "Система управления заявками на перевозку"
@@ -33,6 +39,7 @@ workspace extends ../../solvo-landscape.dsl {
                         "Availability" "Высокая доступность с отказоустойчивостью"
                         "Regulatory/Compliance" "Соответствует требованиям GDPR"
                     }
+                    -> bpm "Запуск процессов, Выполнение userTask" "Gateway, Zeebe" "leap"
                 }
 
                 app = container "Carrier App" "Мобильное приложение перевозчиков" {
@@ -42,6 +49,7 @@ workspace extends ../../solvo-landscape.dsl {
                         "Scalability" "Поддержка большого количества одновременных пользователей"
                         "Availability" "Синхронизация с сервером при наличии подключения"
                     }
+                    -> bpm "Запуск процессов, Выполнение userTask" "Gateway, Zeebe" "leap"
                 }
 
                 api = container "Public API" "Публичный API Портала" {
@@ -71,10 +79,12 @@ workspace extends ../../solvo-landscape.dsl {
 
                 trWorker = container "Request" {
                     !include ../../fragments/worker-dummy.pdsl
+                    -> queue "Подписка" "" "async"
                 }
 
                 offerWorker = container "Offer" {
                     !include ../../fragments/worker-dummy.pdsl
+                    -> queue "Подписка" "" "async"
                 }
 
                 actorWorker = container "Actor" {
@@ -87,6 +97,7 @@ workspace extends ../../solvo-landscape.dsl {
 
                 messageWorker = container "Notifier" {
                     !include ../../fragments/worker-dummy.pdsl
+                    -> app "Оповещения" "SSE" ""
                 }
 
                 referenceWorker = container "Refs" {
@@ -110,14 +121,7 @@ workspace extends ../../solvo-landscape.dsl {
                     }
                 }
 
-                messageQueue = container "Apache Kafka" "Очередь сообщений для асинхронной связи между микросервисами" "Kafka" "Queue" {
-                    perspectives {
-                        "Security" "SSL шифрование"
-                        "Performance" "Высокая пропускная способность"
-                        "Scalability" "Линейная масштабируемость"
-                        "Availability" "Отказоустойчивость  репликацией"
-                    }
-                }
+
                ***/
 
 
@@ -182,7 +186,7 @@ workspace extends ../../solvo-landscape.dsl {
 
         
         bpm -> yms "Создает автовизит"
-        yPortal.referenceWorker -> mdm "НСИ sync"
+        yPortal.referenceWorker -> mdm "НСИ sync" " " " "
         yPortal.referenceWorker -> erp "доступность ресурсов"
         yPortal.web -> tms "Отслеживание транспорта"
 
@@ -197,13 +201,10 @@ workspace extends ../../solvo-landscape.dsl {
 
         container yPortal "yp-structure" "Структура Портала Перевозчика" {
             include *
-            exclude "element.tag==external && element.tag!=abstract"
-            exclude "element.tag==infra"
-            exclude "element.tag==db"
+            // exclude "element.tag==external && element.tag!=abstract"
+            // exclude "element.tag==infra"
+            // exclude "element.tag==db"
         }
-
-
-
 
         // deployment yPortal "Production" {
         //     include *
@@ -211,12 +212,36 @@ workspace extends ../../solvo-landscape.dsl {
         // }
 
         dynamic yPortal "yp-bidding" "Процесс заявки на перевозку" {
-            router -> yPortal.web "Создает заявку в web-форме"
-            yPortal.web -> yPortal.apiGateway "1. Create TR"
-            yPortal.apiGateway -> bpm "2. Make a bid"
-            offerWorker -> trWorker "3. Collect bids"
-            trWorker -> trWorker "4. Choose winner"
+            router -> yPortal.web "Создает заявку в web-форме" ""
+            yPortal.web -> yPortal.apiGateway "Вызывает метод API"
+            yPortal.apiGateway -> bpm "Маршрутизация на запуск процесса"
+            bpm -> yPortal.trWorker "Сохранить заявку"
+            yPortal.trWorker -> bpm "Вернуть ID"
+            router -> bpm "Оформить заявку"
+            bpm -> yPortal.trWorker "Обновить заявку"
+            yPortal.trWorker -> bpm "ОК"
+            bpm -> yPortal.messageWorker "Уведомление 'Новая заявка'"
+            yPortal.messageWorker -> yPortal.app  "'Новая заявка'"
+            yPortal.app -> dispatcher "Получает сообщение"
+            dispatcher -> yPortal.web "Заполняет форму предложения"
+            yPortal.web -> bpm "Запускает процесс 'Предложение'"
+            bpm -> yPortal.offerWorker "Сохранить предложения"
+            {
+                {
+                    yPortal.offerWorker -> queue "Отправляет сообщение в очередь"
+                    queue -> yPortal.trWorker "Обновление ссылок"
+                }
+                {
+                    yPortal.offerWorker -> bpm ""
+                }
+            }
+            router -> bpm "Выбрать победителя"
+            dispatcher -> bpm "Подтвердить выполнение"
+            bpm -> queue "Автовизит"
+           
+
         }
+
 
         // // Dynamic diagram for Transporting Workflow
         // dynamic yPortal{

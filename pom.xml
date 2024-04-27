@@ -35,7 +35,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix/>
-              <mainClass>ru.solvo.c4.CleanCreate</mainClass>
+              <mainClass>ru.solvo.c4.UpdateLandscape</mainClass>
             </manifest>
           </archive>
         </configuration>

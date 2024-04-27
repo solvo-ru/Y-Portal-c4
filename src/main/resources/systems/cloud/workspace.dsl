@@ -3,7 +3,7 @@ workspace extends ../../solvo-landscape.dsl {
     name "Компоненты облачной инфраструктуры"
     description ""
 
-    //!impliedRelationships true
+    !impliedRelationships true
     !identifiers hierarchical
 
     configuration {
@@ -110,6 +110,12 @@ workspace extends ../../solvo-landscape.dsl {
                     "Availability" "Высокая доступность репликацией"
                 }
             }
+        }
+    }
+
+    views {
+        container cloud cloud-infra "Компоненты микросервисной инфраструктуры" {
+            include *
         }
     }
 }
