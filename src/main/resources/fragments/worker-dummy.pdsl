@@ -1,11 +1,14 @@
 technology "Spring Boot" 
-tags "Worker" "solvo"
+tags Worker solvo
 perspectives {
     "Security" "OAuth 2.0"
     "Performance" "Эффективное выполнение бизнес-логики"
     "Scalability" "Горизонтальная масштабируемость для параллельной обработки
     "Availability" "Высокая доступность с отказоустойчивостью"
 }
-component "Controller" "REST-контролер" "Spring MVC"
-component "Service" "Сервисный слой" "Spring Boot Service"
-component "Repository" "Слой хранения" "Spring Data JPA"
+rest = component Controller "REST-контролер" "Spring MVC" 
+srv = component Service "Сервисный слой" "Spring Boot Service"{
+    -> bpm "Получает задачи" "long polling, gRPC" "async, gRPC, job"
+}
+component Repository "Слой хранения" "Spring Data JPA"
+yPortal.apiGateway -> rest "GET" "HTTP REST" "GET, sync, REST"

@@ -25,13 +25,13 @@ workspace extends ../../solvo-landscape.dsl {
         transport = person "Водитель" "" {
             -> bpm "Выполняет UserTask" "Zeebe" "leap"
         }
-
+       
         !extend yPortal {
             description "Система управления заявками на перевозку"
 
             Group FrontEnd {
                 web = container "Web-портал" "Доступ ко функциям системы через браузер" {
-                    tags "browser"
+                    tags "browser, solvo"
                     perspectives {
                         "Security" "TLS/SSL шифрование"
                         "Performance" "Быстрая загрузка"
@@ -43,7 +43,7 @@ workspace extends ../../solvo-landscape.dsl {
                 }
 
                 app = container "Carrier App" "Мобильное приложение перевозчиков" {
-                    tags "mobile"
+                    tags "mobile, solvo"
                     perspectives {
                         "Security" "Биометрическая аутентификация"
                         "Scalability" "Поддержка большого количества одновременных пользователей"
@@ -53,7 +53,7 @@ workspace extends ../../solvo-landscape.dsl {
                 }
 
                 api = container "Public API" "Публичный API Портала" {
-                    tags "REST" "OpenAPI" "infra"
+                    tags REST OpenAPI infra
                     perspectives {
                         "Security" "OAuth 2.0"
                         "Performance" "Низкая задержка"
@@ -66,7 +66,7 @@ workspace extends ../../solvo-landscape.dsl {
             apiGateway = container "API Gateway" {
                 technology "Spring Cloud Gateway"
                 description "Шлюз API для маршрутизации запросов"
-                tags "Orchestrator" "Spring Cloud"
+                tags bus "Spring Cloud"
                 perspectives {
                     "Security" "Защита от DDoS атак"
                     "Performance" "Кэширование для часто используемых эндпоинтов"
@@ -78,17 +78,19 @@ workspace extends ../../solvo-landscape.dsl {
             Group BackEnd {
 
                 trWorker = container "Request" {
-                    !include ../../fragments/worker-dummy.pdsl
-                    -> queue "Подписка" "" "async"
+                    description "Сервис заявок на перевозку" 
+                    !include ../../fragments/worker-dummy.pdsl  
                 }
 
-                offerWorker = container "Offer" {
+                offerWorker = container "Offer" { 
+                    description "Сервис предложений"
                     !include ../../fragments/worker-dummy.pdsl
-                    -> queue "Подписка" "" "async"
                 }
 
                 actorWorker = container "Actor" {
+                    description "Сервис участников процесса"
                     !include ../../fragments/worker-dummy.pdsl
+                   
                 }
 
                 roleWorker = container "Role" {
@@ -105,7 +107,7 @@ workspace extends ../../solvo-landscape.dsl {
                 }
 
                 shipmentWorker = container "Shipment" {
-                    !include ../../fragments/worker-dummy.pdsl
+                    !include ../../fragments/worker-dummy.pdsl 
                 }
 
 
@@ -163,7 +165,7 @@ workspace extends ../../solvo-landscape.dsl {
             //     }
             // }
         }
-        yPortal.apiGateway -> bpm "выполнение user tasks" "gRPC" "gRPC"
+        yPortal.apiGateway -> bpm "Запуск процессов, выполнение задач" "gRPC" "gRPC"
         // apiGateway -> tasklist "управление процессами" "HTTP REST/JSON" "HTTP"
         // apiGateway -> operate "техподдержка" "HTTP REST/JSON" "HTTP"
         // apiGateway -> optimize "администрирование" "HTTP REST/JSON" "HTTP"
@@ -176,31 +178,27 @@ workspace extends ../../solvo-landscape.dsl {
         yPortal.web -> yPortal.apiGateway "Отправляет запрос" "HTTPS REST/JSON" "HTTP"
         yPortal.app -> yPortal.apiGateway "Отправляет запрос" "HTTPS REST/JSON" "HTTP"
         //publicApi -> apiGateway "Отправляет запрос"
-        yPortal.trWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.offerWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.actorWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.roleWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.messageWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.referenceWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
-        yPortal.shipmentWorker -> bpm "Получает задачи" "gRPC long polling" "gRPC"
-
         
-        bpm -> yms "Создает автовизит"
-        yPortal.referenceWorker -> mdm "НСИ sync" " " " "
-        yPortal.referenceWorker -> erp "доступность ресурсов"
-        yPortal.web -> tms "Отслеживание транспорта"
+        yPortal.web ->  iam "Доступ" "JWT" "auth"
+        yPortal.app ->  iam "Доступ" "JWT" "auth"
+        yPortal.apiGateway -> iam "" "JWT" "auth"
+        bpm -> yms "Создает автовизит" 
+        yPortal.web -> tms "Отслеживание транспорта" "HTTPS"
 
         //iam -> roleWorker "get roles" "HTTP REST/JSON" "HTTP, GET, leap"
        // messageWorker -> ext "notify" "async"
     }
 
     views {
-        systemContext yPortal "yp-context" "Системный контекст Портала Перевозчика" {
+        systemContext yPortal yp-context "Системный контекст Портала Перевозчика" {
             include *
+            include queue->
+            exclude relationship.tag==leap
         }
 
-        container yPortal "yp-structure" "Структура Портала Перевозчика" {
+        container yPortal yp-structure "Структура Портала Перевозчика" {
             include *
+            exclude relationship.tag==leap
             // exclude "element.tag==external && element.tag!=abstract"
             // exclude "element.tag==infra"
             // exclude "element.tag==db"
@@ -211,7 +209,7 @@ workspace extends ../../solvo-landscape.dsl {
         //     autolayout lr
         // }
 
-        dynamic yPortal "yp-bidding" "Процесс заявки на перевозку" {
+        dynamic yPortal yp-bidding "Процесс заявки на перевозку" {
             router -> yPortal.web "Создает заявку в web-форме" ""
             yPortal.web -> yPortal.apiGateway "Вызывает метод API"
             yPortal.apiGateway -> bpm "Маршрутизация на запуск процесса"
@@ -225,21 +223,12 @@ workspace extends ../../solvo-landscape.dsl {
             yPortal.app -> dispatcher "Получает сообщение"
             dispatcher -> yPortal.web "Заполняет форму предложения"
             yPortal.web -> bpm "Запускает процесс 'Предложение'"
-            bpm -> yPortal.offerWorker "Сохранить предложения"
-            {
-                {
-                    yPortal.offerWorker -> queue "Отправляет сообщение в очередь"
-                    queue -> yPortal.trWorker "Обновление ссылок"
-                }
-                {
-                    yPortal.offerWorker -> bpm ""
-                }
-            }
+            bpm -> yPortal.offerWorker "Сохранить предложение"
+            yPortal.offerWorker -> bpm "Вернуть ID"
+            bpm -> bpm "Отправить сообщение в процесс заявки" 
             router -> bpm "Выбрать победителя"
             dispatcher -> bpm "Подтвердить выполнение"
-            bpm -> queue "Автовизит"
-           
-
+            bpm -> yms "Создать автовизит" 
         }
 
 

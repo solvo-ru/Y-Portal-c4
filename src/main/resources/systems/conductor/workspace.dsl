@@ -22,7 +22,7 @@ workspace extends ../../solvo-landscape.dsl {
                 modeler = container "Process Modeler"   {                
                     description "Приложение для моделирования бизнес-процессов"
                     technology bpmn.io
-                    tags  browser 
+                    tags  window 
                     perspectives {
                         "Security" "Ролевая модель доступа"
                         "Performance" "Отзывчивый UI"
@@ -30,17 +30,7 @@ workspace extends ../../solvo-landscape.dsl {
                         "Availability" "99.9% времени доступности"
                     }
                 }
-                identity = container "Identity" {
-                    tags browser
-                    //description "Identity management component for Camunda"
-                    perspectives {
-                        "Security" "Аутентификация и авторизация"
-                        "Performance" "Эффективное идентификация"
-                        "Scalability" "Масштабируемость для больших баз пользователей"
-                        "Availability" "Высокая доступность кластеризацией"
-                    }
-                    -> iam "Авторизация"
-                }
+                
                 optimize = container "Optimize" {
                     tags browser
                     description "Инструмент аналитики и мониторинга процессов"
@@ -77,10 +67,21 @@ workspace extends ../../solvo-landscape.dsl {
                     }
                 }
             }
-
+            
+            identity = container "Identity" {
+                tags browser
+                //description "Identity management component for Camunda"
+                perspectives {
+                    "Security" "Аутентификация и авторизация"
+                    "Performance" "Эффективное идентификация"
+                    "Scalability" "Масштабируемость для больших баз пользователей"
+                    "Availability" "Высокая доступность кластеризацией"
+                }
+                -> iam "Идентификация" "JWT" "auth"
+            }
 
             zeebe = container "BPM Engine" {
-
+                !docs docs 
                 description "Оркестратор микросервисов"
                 technology "Zeebe"
                 perspectives {
@@ -89,14 +90,14 @@ workspace extends ../../solvo-landscape.dsl {
                     "Scalability" "Горизонтальное масштабирование для высокой пропускной способности"
                     "Availability" "Высокая доступность кластеризацией"
                 }
-                broker = component "Zeebe Broker" "Движок бизнес-процессов" "Zeebe  " {
+                broker = component "Zeebe Broker" "Движок бизнес-процессов" "Zeebe" {
                     perspectives {
                         "Security" "Аутентификация и авторизация"
                         "Performance" "Эффективная оркестрация микросервисов"
                         "Scalability" "Эластичное масштабирование для высокой пропускной способности"
                         "Availability" "Высокая доступность репликацией"
                     }
-                    -> broker "Call Activity" "BPMN"
+                    -> broker "запуск подпроцессов" "Call Activity" "BPMN"
                 }
                 gateway = component "Zeebe Gateway" {
                     description "Шлюз API управляющий доступом к Zeebe  кластеру"
@@ -107,6 +108,7 @@ workspace extends ../../solvo-landscape.dsl {
                         "Availability" "Высокая доступность кластеризацией"
                     }
                     -> broker "Маршрутизация к движку"
+                    -> identity "проверяет доступ" "JWT" "access"
                 }
             }
 
@@ -133,23 +135,23 @@ workspace extends ../../solvo-landscape.dsl {
                     "Performance" "Высокоскоростной поиск и извлечение данных"
                     "Scalability" "Эластичная масштабируемость для больших наборов данных"
                     "Availability" "Высокая доступность  кластеризацией"
-
                 }
             }
-            zeebe.broker -> connectors ""
-            optimize -> zeebe.gateway "транслирует" "gRPC" "gRPC"
-            tasklist -> zeebe.gateway "транслирует" "gRPC" "gRPC"
-            operate -> zeebe.gateway "транслирует" "gRPC" "gRPC"            
+            zeebe.broker -> connectors "использует" "gRPC" "gRPC"
+            zeebe.broker -> elastic "хранит данные"
+            optimize -> zeebe.gateway "транслирует запрос" "gRPC" "gRPC"
+            tasklist -> zeebe.gateway "транслирует запрос" "gRPC" "gRPC"
+            operate -> zeebe.gateway "транслирует запрос" "gRPC" "gRPC"            
             modeler -> zeebe.gateway "deploy" "gRPC" "gRPC"
         }
 
     }
     views {
-        systemContext bpm camunda-context "Оркестрация систем" {
+
+        component bpm.zeebe camunda-arch "Компоненты оркеcтратора" {
             include *
-        }
-        container bpm camunda-arch "Компоненты орксетратора" {
-            include *
+            include queue
+
         }
     }
 }

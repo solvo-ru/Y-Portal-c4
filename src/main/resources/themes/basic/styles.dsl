@@ -25,16 +25,21 @@ workspace Базовые стили {
         styles {
 
             relationship Relationship {
-                thickness 3 
+                thickness 4
                 style solid
-                routing direct
+                routing Direct
                 fontSize 20 
             }
             relationship HTTP {
                 color ${BLUE3}
             } 
+            relationship auth {
+                routing Curved
+                color ${GREY} 
+                opacity 80
+            }
             relationship leap { 
-                thickness 2 
+                thickness 1 
                 style Dashed
             }
             relationship async { 
@@ -42,24 +47,29 @@ workspace Базовые стили {
             }
             relationship gRPC { 
                 color ${CAMUNDA}
-                style Dotted 
+                //style Dotted 
             }
             relationship GET {
-                thickness 1
+                thickness 3
                 color ${GREEN}
-                routing curved
             }
-            // relationship SERVICE_REGISTRATION_TAG 
-            //         .thickness 2 
-            //         .style LineStyle.Dotted 
-            //         .color BLUE2 ;
+            relationship job {
+                thickness 2 
+                routing Curved
+                opacity 60
+            } 
+
+            relationship BPMN {
+                thickness 2 
+                routing Orthogonal
+                color ${BLUE2} 
+            }
 
             element Element {
                 color ${FONT}
                 strokeWidth 8 
                 background ${BLUE0} 
-            }
-            
+            }            
 
             element Group  {
                 fontSize 45 
@@ -104,6 +114,10 @@ workspace Базовые стили {
                 metadata false
             }
 
+            element monolith {
+                border dashed
+            }
+
             element Product  {
                 stroke ${RED2} 
                 icon icons/solvo-icon.png 
@@ -111,20 +125,21 @@ workspace Базовые стили {
 
             element Keycloak  {
                 stroke ${GREY}
-                icon icons/keycloak.png 
+                icon icons/keycloak.png  
             }
-            
+            element bus {
+                width 2000 
+                height 200 
+            }
+
             element Orchestrator {
-                width 300 
-                height 1500 
+                shape Robot
                 stroke ${CAMUNDA} 
                 icon icons/orchestrator.png
             }
 
             element Queue {
                 shape Pipe 
-                width 2000 
-                height 200 
             }
 
             element Cloud {
@@ -145,6 +160,9 @@ workspace Базовые стили {
 
             element browser {
                 shape WebBrowser 
+            }
+            element window {
+                shape Window
             }
 
             element elk  {
@@ -169,9 +187,13 @@ workspace Базовые стили {
                 color white
             }
 
+            element OpenAPI {
+                shape Folder
+            }
+
             element solvo {
-                background ${RED1}
-                stroke ${RED2}
+                background ${RED0}
+                stroke ${RED1}
             }
 
             element db {
@@ -192,8 +214,6 @@ workspace Базовые стили {
                 icon icons/postgresql.png 
                 background #336791 
             } 
-
-
 
 
             element "Spring Cloud" {

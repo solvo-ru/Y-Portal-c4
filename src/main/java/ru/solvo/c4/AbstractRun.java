@@ -40,6 +40,9 @@ class AbstractRun {
         parser.parse(landscapeWorkspaceDsl);
         Workspace landscapeWorkspace = parser.getWorkspace();
         enrichSystemLandscape(landscapeWorkspace);
+        if (landscapeWorkspace != null) {return landscapeWorkspace;}
+        //Переделать
+
         String oldDsl = DslUtils.getDsl(landscapeWorkspace);
         StringBuilder computedRelationships = new StringBuilder("\n//###\n");
         for(Relationship relationship: landscapeWorkspace.getModel().getRelationships()){
@@ -50,7 +53,6 @@ class AbstractRun {
         try (FileWriter writer = new FileWriter(landscapeWorkspaceDsl)) {
             writer.write(newDsl);
             System.out.println("String value written to file successfully.");
-            writer.close();
         } catch (IOException e) {
             System.out.println("An error occurred while writing to the file.");
             e.printStackTrace();
@@ -73,13 +75,13 @@ class AbstractRun {
                     findElementByKey(systemLandscapeWorkspace,getElementKey((softwareSystem)))
                       .setUrl("{workspace:" + workspaceMetadata.getId() + "}/diagrams#"+viewType);
                 }
-                findAndCloneRelationships(workspace, systemLandscapeWorkspace);
+                //findAndCloneRelationships(workspace, systemLandscapeWorkspace);
             }
         }
 
-//        // create a system landscape view
-//        SystemLandscapeView view = systemLandscapeWorkspace.getViews().createSystemLandscapeView("Landscape", "An automatically generated system landscape view.");
-//        view.addAllElements();
+        // create a system landscape view
+/*//        SystemLandscapeView view = systemLandscapeWorkspace.getViews().createSystemLandscapeView("Landscape", "An automatically generated system landscape view.");
+//        view.addAllElements();*/
 //        view.enableAutomaticLayout();
 //
 //        // and push the landscape workspace to the on-premises installation
