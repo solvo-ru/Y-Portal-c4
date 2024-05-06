@@ -1,14 +1,34 @@
 technology "Spring Boot" 
-tags Worker solvo
+tags Worker solvo "Spring Boot"
 perspectives {
     "Security" "OAuth 2.0"
     "Performance" "Эффективное выполнение бизнес-логики"
     "Scalability" "Горизонтальная масштабируемость для параллельной обработки
     "Availability" "Высокая доступность с отказоустойчивостью"
 }
-rest = component Controller "REST-контролер" "Spring MVC" 
-srv = component Service "Сервисный слой" "Spring Boot Service"{
+rest = component Controller  {
+    description "REST-контролер"
+    technology "Spring MVC" 
+    tags Java
+}
+srv = component Service  {
+    description "Сервисный слой"
+    technology "Spring Boot Service"
+    tags Java
+}
+rest -> srv ""
+job = component Worker {
+    description "Подписчик"
+    technology "Zeebe Spring Client"
+    tags Java
+    
     -> bpm "Получает задачи" "long polling, gRPC" "async, gRPC, job"
 }
-component Repository "Слой хранения" "Spring Data JPA"
+repo = component Repository {
+    description "Слой хранения"
+    technology "Spring Data JPA"
+    tags Java
+}
+srv -> repo ""
+job -> repo ""
 yPortal.apiGateway -> rest "GET" "HTTP REST" "GET, sync, REST"

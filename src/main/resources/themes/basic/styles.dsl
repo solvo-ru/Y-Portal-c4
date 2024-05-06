@@ -1,23 +1,33 @@
 !const GREY  #8D98A7
-!const BLUE3  #063e63
+!const BLUE3  #18162D
 !const BLUE2  #0b5889
-!const BLUE1  #4d88b7
-!const BLUE0  #85BBF0
-!const RED3  #a5000d 
+!const BLUE1  #3995D1
+!const BLUE0   #62B1E7
+!const RED3  #B12333 
 //darker
 !const RED2  #d9021c 
 //basic
-!const RED1  #f22d3e 
+!const RED1  #FF707E 
 //light
-!const RED0  #ff4d5c 
+!const RED0  #FFC1CC 
 //desaturated
 !const CAMUNDA  #FC5D0D
 !const SPRING  #6EB23F
 !const GREEN  #6EB23F
 !const FONT #003557
+!const YELLOW  #FFBE47
 
-workspace Базовые стили {
+
+workspace "Базовые стили" {
+    model {
+        system = softwareSystem system 
+    }
+
     views {
+        systemContext system "Cont" {
+            include *
+        }
+
         branding {
             font "Fira Code" https://fonts.googleapis.com/css2?family=Fira+Code
             logo icons/solvo-favicon.png
@@ -204,13 +214,18 @@ workspace Базовые стили {
             }
 
 
-
             element Redis  {
                 icon icons/redis.png 
                 background #DC382C 
             }
 
-            element postgres {
+
+            element Java  {
+                icon icons/java.svg 
+                background ${YELLOW} 
+            }
+
+            element Postgres {
                 icon icons/postgresql.png 
                 background #336791 
             } 
@@ -218,6 +233,11 @@ workspace Базовые стили {
 
             element "Spring Cloud" {
                 background ${SPRING} 
+                icon icons/spring-cloud.svg 
+            }
+
+            element "Spring Boot" {
+                icon icons/spring-boot.svg 
             }
 
             element Worker {

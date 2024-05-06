@@ -65,15 +65,18 @@ class AbstractRun {
             WorkspaceApiClient workspaceApiClient = createWorkspaceApiClient(workspaceMetadata);
             workspaceApiClient.setWorkspaceArchiveLocation(null);
             Workspace workspace = workspaceApiClient.getWorkspace(workspaceMetadata.getId());
-            String viewType = "SystemContext";
-            if (workspace.getViews().getSystemContextViews().isEmpty()){
-                viewType = "Container";
-            }
+//            String viewType = "SystemContext";
+//            if (workspace.getViews().getSystemContextViews().isEmpty()){
+//                viewType = "Container";
+//                if(workspace.getViews().getContainerViews().isEmpty()){
+//                    viewType = "Component";
+//                }
+//            }
             if (workspace.getConfiguration().getScope() == WorkspaceScope.SoftwareSystem) {
                 SoftwareSystem softwareSystem = findScopedSoftwareSystem(workspace);
                 if (softwareSystem != null) {
                     findElementByKey(systemLandscapeWorkspace,getElementKey((softwareSystem)))
-                      .setUrl("{workspace:" + workspaceMetadata.getId() + "}/diagrams#"+viewType);
+                      .setUrl("{workspace:" + workspaceMetadata.getId() + "}/diagrams");
                 }
                 //findAndCloneRelationships(workspace, systemLandscapeWorkspace);
             }

@@ -1,0 +1,177 @@
+{
+  "main": {
+    "id": "e451c78e1cefe1d0",
+    "type": "split",
+    "children": [
+      {
+        "id": "b4985d6da889ce12",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "83d327b116f2cfe7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "portal/01-concept.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "e8f5a1c796a1955e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "request/01-basic.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "eaf369f0d9976e2a",
+    "type": "split",
+    "children": [
+      {
+        "id": "ea2c85d8e4cc1270",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a82e4879e7cacb1b",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "2a102be0df538c71",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "6c2433e7c6c3de67",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "bbf2b527d5ae29e6",
+    "type": "split",
+    "children": [
+      {
+        "id": "a890be36158a175f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0863a56d9840e82f",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "request/01-basic.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "e1627250a2d774e5",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "request/01-basic.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "62c7803e1bfb3c9b",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "115deed67e7ca430",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "request/01-basic.md"
+              }
+            }
+          }
+        ],
+        "currentTab": 3
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "workspaces:Manage workspace layouts": false
+    }
+  },
+  "active": "a82e4879e7cacb1b",
+  "lastOpenFiles": [
+    "microservice_template/08-monitoring.md",
+    "microservice_template/01-overview.md",
+    "request/01-basic.md",
+    "portal/01-concept.md",
+    "microservice_template/03-orchestration.md",
+    "microservice_template/02-architecture.md",
+    "microservice_template/07-deployment.md",
+    "microservice_template/06-testing.md",
+    "microservice_template/05-security.md",
+    "microservice_template/04-api.md",
+    "microservice_template"
+  ]
+}

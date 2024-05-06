@@ -11,6 +11,7 @@ workspace extends ../../solvo-landscape.dsl {
         scope softwaresystem
         users {
             moarse write
+            guest read
         }
     }
 
@@ -78,19 +79,29 @@ workspace extends ../../solvo-landscape.dsl {
             Group BackEnd {
 
                 trWorker = container "Request" {
+                    !docs docs/request
                     description "Сервис заявок на перевозку" 
                     !include ../../fragments/worker-dummy.pdsl  
                 }
+                trDb = container "Request Database" {
+                    technology "PostreSQL 16"
+                    tags db Postgres 
+                }
+                trWorker.repo -> trDb "" "JDBC"
 
                 offerWorker = container "Offer" { 
                     description "Сервис предложений"
                     !include ../../fragments/worker-dummy.pdsl
                 }
+                offerDb = container "Offer Database" {
+                    technology "PostreSQL 16"
+                    tags db Postgres 
+                }
+                offerWorker.repo -> offerDb "" "JDBC"
 
                 actorWorker = container "Actor" {
                     description "Сервис участников процесса"
-                    !include ../../fragments/worker-dummy.pdsl
-                   
+                    !include ../../fragments/worker-dummy.pdsl                   
                 }
 
                 roleWorker = container "Role" {
@@ -99,12 +110,17 @@ workspace extends ../../solvo-landscape.dsl {
 
                 messageWorker = container "Notifier" {
                     !include ../../fragments/worker-dummy.pdsl
-                    -> app "Оповещения" "SSE" ""
+                    -> app "Оповещения" "SSE" "async"
                 }
 
                 referenceWorker = container "Refs" {
                     !include ../../fragments/worker-dummy.pdsl
                 }
+                refDb = container "Master Data DB" {
+                    technology "PostreSQL 16"
+                    tags db Postgres 
+                }
+                referenceWorker.repo -> refDb "" "JDBC"
 
                 shipmentWorker = container "Shipment" {
                     !include ../../fragments/worker-dummy.pdsl 
@@ -135,7 +151,7 @@ workspace extends ../../solvo-landscape.dsl {
         }
 
         // Development environment using Docker
-        development = deploymentEnvironment "Development" {
+        development = deploymentEnvironment "Development" { 
             deploymentNode "Developer Machine" {
                 infrastructureNode "Docker Engine" {
                     // softwareSystemInstance "yPortal" ""  ""{
@@ -194,6 +210,7 @@ workspace extends ../../solvo-landscape.dsl {
             include *
             include queue->
             exclude relationship.tag==leap
+            exclude "element.tag==db"
         }
 
         container yPortal yp-structure "Структура Портала Перевозчика" {
@@ -201,13 +218,18 @@ workspace extends ../../solvo-landscape.dsl {
             exclude relationship.tag==leap
             // exclude "element.tag==external && element.tag!=abstract"
             // exclude "element.tag==infra"
-            // exclude "element.tag==db"
+            exclude "element.tag==db"
         }
 
         // deployment yPortal "Production" {
         //     include *
         //     autolayout lr
         // }
+        component yPortal.trWorker request-structure "Компоненты микросервиса 'Заявка на перевозку'" {
+            include *
+            exclude bpm->*
+        }
+
 
         dynamic yPortal yp-bidding "Процесс заявки на перевозку" {
             router -> yPortal.web "Создает заявку в web-форме" ""

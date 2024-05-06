@@ -6,11 +6,12 @@ workspace extends ../../solvo-landscape.dsl {
     !impliedRelationships true
     !identifiers hierarchical
 
-    configuration {
+    configuration {        
         visibility public
         scope softwaresystem
         users {
             moarse write
+            guest read
         }
     }
 
@@ -81,7 +82,7 @@ workspace extends ../../solvo-landscape.dsl {
             }
 
             zeebe = container "BPM Engine" {
-                !docs docs 
+                !docs docs/zeebe 
                 description "Оркестратор микросервисов"
                 technology "Zeebe"
                 perspectives {
