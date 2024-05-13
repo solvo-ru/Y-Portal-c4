@@ -8,13 +8,12 @@ import com.structurizr.view.SystemLandscapeView;
 import java.io.File;
 import java.util.List;
 
-public class UpdateLandscape extends AbstractRun {
+public class DevOpsCollector extends AbstractRun {
 
     public static void main(String[] args) throws Exception {
 
         List<WorkspaceMetadata> workspaces = createAdminApiClient().getWorkspaces();
         SYSTEM_LANDSCAPE_WORKSPACE_METADATA = workspaces.stream().filter(workspaceMetadata -> workspaceMetadata.getId() == 4).toList().getFirst();
-      //  CLOUD_WORKSPACE_METADATA = workspaces.stream().filter(workspaceMetadata -> workspaceMetadata.getId() == 6).toList().getFirst();
 //        Workspace landscapeWorkspace = workspaceApiClient.getWorkspace(4);
         Workspace landscapeWorkspace =enrichSystemLandscape(new File("src/main/resources/solvo-landscape.dsl"));
         SystemLandscapeView view = landscapeWorkspace.getViews().createSystemLandscapeView("solvo-products", "Экосистема продуктов Solvo");

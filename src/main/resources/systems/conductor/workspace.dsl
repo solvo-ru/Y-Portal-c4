@@ -4,7 +4,7 @@ workspace extends ../../solvo-landscape.dsl {
     description ""
 
     !impliedRelationships true
-    !identifiers hierarchical
+    !identifiers flat
 
     configuration {        
         visibility public
@@ -19,11 +19,14 @@ workspace extends ../../solvo-landscape.dsl {
         lowcoder = person "Лоукодер" " " "Analyst"
 
         !extend bpm {
+            properties {
+                wiki.document.id TJ1T0ha2XI
+            }
             Group FrontEnd {
                 modeler = container "Process Modeler"   {                
                     description "Приложение для моделирования бизнес-процессов"
                     technology bpmn.io
-                    tags  window 
+                    tags  window Tool 
                     perspectives {
                         "Security" "Ролевая модель доступа"
                         "Performance" "Отзывчивый UI"
@@ -33,7 +36,7 @@ workspace extends ../../solvo-landscape.dsl {
                 }
                 
                 optimize = container "Optimize" {
-                    tags browser
+                    tags browser Tool
                     description "Инструмент аналитики и мониторинга процессов"
                     perspectives {
                         "Security" "Ролевая модель доступа"
@@ -45,7 +48,7 @@ workspace extends ../../solvo-landscape.dsl {
                 }
 
                 tasklist = container "Tasklist" {
-                    tags browser
+                    tags browser Tool
                     description "Веб-приложение управления задачами"
                     perspectives {
                         "Security" "Ролевая модель доступа"
@@ -57,7 +60,7 @@ workspace extends ../../solvo-landscape.dsl {
 
 
                 operate = container "Operate" {
-                    tags browser
+                    tags browser Tool
                     url https://docs.camunda.io/docs/self-managed/operate-deployment/operate-configuration/
                     description "Операционная панель управления и мониторинга бизнес-процессов"
                     perspectives {
@@ -70,7 +73,7 @@ workspace extends ../../solvo-landscape.dsl {
             }
             
             identity = container "Identity" {
-                tags browser
+                tags browser Tool
                 //description "Identity management component for Camunda"
                 perspectives {
                     "Security" "Аутентификация и авторизация"
@@ -78,29 +81,24 @@ workspace extends ../../solvo-landscape.dsl {
                     "Scalability" "Масштабируемость для больших баз пользователей"
                     "Availability" "Высокая доступность кластеризацией"
                 }
-                -> iam "Идентификация" "JWT" "auth"
+                -> iam "Идентификация" "JWT" "check, major, sync"
             }
 
-            zeebe = container "BPM Engine" {
-                !docs docs/zeebe 
-                description "Оркестратор микросервисов"
-                technology "Zeebe"
-                perspectives {
-                    "Security" "Ролевая модель доступа"
-                    "Performance" "Эффективное выполнение рабочих процессов"
-                    "Scalability" "Горизонтальное масштабирование для высокой пропускной способности"
-                    "Availability" "Высокая доступность кластеризацией"
-                }
-                broker = component "Zeebe Broker" "Движок бизнес-процессов" "Zeebe" {
+             Group Zeebe {
+                broker = container "Zeebe Broker" "Движок бизнес-процессов" "Zeebe" {
+                    !docs docs/zeebe 
+                    tags Pillar
+                    description "Оркестратор микросервисов"
                     perspectives {
                         "Security" "Аутентификация и авторизация"
                         "Performance" "Эффективная оркестрация микросервисов"
                         "Scalability" "Эластичное масштабирование для высокой пропускной способности"
                         "Availability" "Высокая доступность репликацией"
                     }
-                    -> broker "запуск подпроцессов" "Call Activity" "BPMN"
+                    -> broker "запуск подпроцессов" "Call Activity" "async, major, vague"
                 }
-                gateway = component "Zeebe Gateway" {
+                gateway = container "Zeebe Gateway" {
+                    tags Tool
                     description "Шлюз API управляющий доступом к Zeebe  кластеру"
                     perspectives {
                         "Security" "Аутентификация и авторизация"
@@ -108,13 +106,12 @@ workspace extends ../../solvo-landscape.dsl {
                         "Scalability" "Горизонтальное масштабирование для высокой пропускной способности"
                         "Availability" "Высокая доступность кластеризацией"
                     }
-                    -> broker "Маршрутизация к движку"
-                    -> identity "проверяет доступ" "JWT" "access"
+                    -> broker "Маршрутизация к движку" "gRPC" "async, major, command"
+                    -> identity "проверяет доступ" "JWT" "check, sync, major"
                 }
             }
-
             connectors = container "Connectors" {
-                tags "Camunda"
+                tags Camunda Pillar
                 description "Интеграционные коннекторы"
                 perspectives {
                     "Security" "Безопасная передача данных"
@@ -123,14 +120,13 @@ workspace extends ../../solvo-landscape.dsl {
                     "Availability" "Высокая доступность с отказоустойчивостью"
                 }
                 localMQ = component "Локальная очередь" {
-                    -> queue 
+                    -> queue "" "AMQP" "async, major, message"
                 }
             }
 
-            elastic = container "Хранилище процессов" {
-                tags "elk" "db"
-                description "Озеро данных"
-                technology "Elasticsearch"
+            elastic = container "Озеро данных" {
+                tags ELK db
+                technology Elasticsearch
                 perspectives {
                     "Security" "Ролевая модель доступа"
                     "Performance" "Высокоскоростной поиск и извлечение данных"
@@ -138,21 +134,129 @@ workspace extends ../../solvo-landscape.dsl {
                     "Availability" "Высокая доступность  кластеризацией"
                 }
             }
-            zeebe.broker -> connectors "использует" "gRPC" "gRPC"
-            zeebe.broker -> elastic "хранит данные"
-            optimize -> zeebe.gateway "транслирует запрос" "gRPC" "gRPC"
-            tasklist -> zeebe.gateway "транслирует запрос" "gRPC" "gRPC"
-            operate -> zeebe.gateway "транслирует запрос" "gRPC" "gRPC"            
-            modeler -> zeebe.gateway "deploy" "gRPC" "gRPC"
+            broker -> connectors "использует" "gRPC" "async, major, request"
+            connectors -> yms  "Автовизит" "REST" "sync, aux, message"
+            broker -> elastic "хранит данные" "HTTP" "safe, sync, major"
+            optimize -> gateway "транслирует запрос" "gRPC" "sync, aux, request"
+            tasklist -> gateway "транслирует запрос" "gRPC" "sync, major, command"
+            operate -> gateway "транслирует запрос" "gRPC" "sync, aux, request"            
+            modeler -> gateway "deploy" "gRPC" "sync, major, request"
+            yPortal -> gateway "Запуск процессов" "gRPC" "async, major, leap, command"
+            yPortal -> tasklist "Выполнение задач" "HTTP" "sync, major, leap, command"
+            lowcoder -> optimize "Оптимизация" "WWW" "aux, request"
+            lowcoder -> operate "Поддержка" "WWW" "aux, request"
+        
+        !script ../../scripts/Tagger.groovy {             
+                type system
+            }
+        
+        }
+        production = deploymentEnvironment "Production" {
+            kuberNode1 = deploymentGroup kuberNode1
+            kuberNode2 = deploymentGroup kuberNode2
+            kuberNode3 = deploymentGroup kuberNode3
+            kuberNode4 = deploymentGroup kuberNode4
+
+            deploymentNode "Node A" "" "Kubernetes" "node" {
+                deploymentNode Zeebe Pod "" "pod"{
+                    deploymentNode BrokerContainer Docker "" "dock"{
+                      containerInstance broker serviceInstance1 "deploy"
+                    }
+                    deploymentNode GatewayContainer Docker "" "dock"{
+                      containerInstance gateway serviceInstance1 "ep"
+                    }                    
+                }
+                deploymentNode Elastic Pod {
+                    deploymentNode ElasticContainer Docker "" "dock" {
+                      containerInstance elastic serviceInstance1 "pv"
+                    }
+                                    
+                }
+                deploymentNode TaskOperate Pod "" "pod" {
+                    deploymentNode TasklistContainer Docker "" "dock"{
+                      containerInstance tasklist serviceInstance1 "deploy"
+                    }
+                    deploymentNode OperateContainer Docker "" "dock"{
+                      containerInstance operate serviceInstance1 "deploy"
+                    }                    
+                }
+            }
+            deploymentNode "Node B" "" "Kubernetes" "node"{
+                deploymentNode Zeebe Pod "" "pod" {
+                    deploymentNode BrokerContainer Docker "" "dock"{
+                      containerInstance broker serviceInstance2 "deploy"
+                    }
+                    deploymentNode GatewayContainer Docker "" "dock"{
+                      containerInstance gateway serviceInstance2 "ep"
+                    }                    
+                }
+                deploymentNode Elastic Pod "" "pod" {
+                    deploymentNode ElasticContainer Docker "" "dock"{
+                      containerInstance elastic serviceInstance2 "pv"
+                    }
+                                    
+                }
+                deploymentNode TaskOperate Pod "" "pod" {
+                    deploymentNode TasklistContainer Docker "" "dock" {
+                      containerInstance tasklist serviceInstance2 "deploy"
+                    }
+                    deploymentNode OperateContainer Docker "" "dock" {
+                      containerInstance operate serviceInstance2  "deploy"
+                    }                    
+                }
+            }
+            deploymentNode "Node C" "" "Kubernetes" "node"{
+                deploymentNode Zeebe Pod "" "pod" {
+                    deploymentNode BrokerContainer Docker "" "dock"  {
+                      containerInstance broker serviceInstance3  "deploy"
+                    }                                   
+                }
+                deploymentNode Key Pod "" "pod"{
+                    deploymentNode KeyContainer Docker "" "dock" {
+                      softwareSystemInstance iam serviceInstance3  "svc"
+                    }
+                                    
+                }
+                deploymentNode ID Pod "" "pod" {
+                    deploymentNode IdContainer Docker "" "dock" {
+                      containerInstance identity serviceInstance3  "deploy"
+                    }
+                                    
+                }
+            }
+            deploymentNode "Node D" "" "Kubernetes" "node" {
+                deploymentNode Integration Pod "" "pod"{
+                    deploymentNode ConContainer Docker "" "dock" {
+                      containerInstance connectors serviceInstance4 "deploy"
+                    }                                   
+                }
+                deploymentNode Key Pod "" "pod" {
+                    deploymentNode KeyContainer Docker "" "dock" {
+                      softwareSystemInstance iam serviceInstance4 "svc"
+                    }
+                                    
+                }
+                deploymentNode ID Pod "" "pod"{
+                    deploymentNode IdContainer Docker "" "dock" {
+                      containerInstance identity serviceInstance4  "deploy"
+                    }
+                                    
+                }
+            }
+            
         }
 
     }
     views {
 
-        component bpm.zeebe camunda-arch "Компоненты оркеcтратора" {
+        container bpm camunda-arch "Компоненты оркеcтратора" {
             include *
             include queue
 
+        }
+        deployment * production vendor-schema "Рекомендованная схема" {
+            include *
+            exclude relationship==*
         }
     }
 }

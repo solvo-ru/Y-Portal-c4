@@ -1,5 +1,5 @@
 technology "Spring Boot" 
-tags Worker solvo "Spring Boot"
+tags Worker Solvo "Spring Boot" Product
 perspectives {
     "Security" "OAuth 2.0"
     "Performance" "Эффективное выполнение бизнес-логики"
@@ -9,26 +9,51 @@ perspectives {
 rest = component Controller  {
     description "REST-контролер"
     technology "Spring MVC" 
-    tags Java
+    tags Java API Addon
 }
 srv = component Service  {
     description "Сервисный слой"
     technology "Spring Boot Service"
-    tags Java
+    tags Java Product
 }
-rest -> srv ""
+rest -> srv "" "command, sync, aux"
 job = component Worker {
     description "Подписчик"
     technology "Zeebe Spring Client"
-    tags Java
+    tags Java Pillar
     
-    -> bpm "Получает задачи" "long polling, gRPC" "async, gRPC, job"
+    -> bpm "Получает задачи" "long polling, gRPC" "async, request"
 }
 repo = component Repository {
     description "Слой хранения"
     technology "Spring Data JPA"
-    tags Java
+    tags Java Addon
 }
-srv -> repo ""
-job -> repo ""
-yPortal.apiGateway -> rest "GET" "HTTP REST" "GET, sync, REST"
+srv -> repo "" "@Autowire" "sync, command, aux"
+job -> srv "" "@Jobworker" "sync, command, major"
+
+yPortal.apiGateway -> rest "GET" "HTTP REST" "safe, sync, aux"
+
+consulClient = component "Consul Client" {
+    tags  Consul Java infra Tool
+    -> yPortal.consul "Регистрация, конфигурация" "DNS/HTTP" "safe, sync, collect, aux"
+}
+
+logback = component Logback {
+    tags Java Logback infra Tool
+}
+yPortal.filebeat -> logback  "Выгрузка логов" "Docker Discovery" "vague, collect, aux, async"
+
+sleuth = component Sleuth {
+    description "Распределенная трассировка"
+    technology "Spring Cloud Sleuth"
+    tags Java "Spring Cloud" infra Tool
+    -> yPortal.zipkin "Сбор спанов" "HTTP" "aux, async"
+}
+
+actuator = component Micrometer {
+    description "Эндпоинт метрик"
+    technology "Spring Boot Actuator"
+    tags Java "Spring Boot" infra Tool
+}
+yPortal.prometheus -> actuator "Агрегация метрик" "HTTP GET" "collect, safe, aux"

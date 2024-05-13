@@ -23,6 +23,7 @@ class AbstractRun {
     protected static final String ADMIN_API_KEY_BCRYPT = "$2a$10$V6PN618FLott/WqaUDlTfewtPzVVZBSg9J90ueoBr71LR9ldFPeOm";
 
     protected static WorkspaceMetadata SYSTEM_LANDSCAPE_WORKSPACE_METADATA;
+    protected static WorkspaceMetadata CLOUD_WORKSPACE_METADATA;
 
     protected static AdminApiClient createAdminApiClient() {
         return new AdminApiClient(STRUCTURIZR_ONPREMISES_URL + "/api", "", ADMIN_API_KEY_PLAINTEXT);

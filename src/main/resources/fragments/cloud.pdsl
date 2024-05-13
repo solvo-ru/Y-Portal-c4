@@ -1,0 +1,109 @@
+elastic = container "Аналитическое хранилище" {
+    technology Elasticsearch
+    tags ELK infra db 
+    perspectives {
+        "Security" "Ролевая модель доступа"
+        "Performance" "Почти реальное время инлдексации"
+        "Scalability" "Эластичная масштабируемость"
+        "Availability" "Высокая доступность  репликацией"
+    }
+}
+consul = container "Consul" "Сервис конфигурации и обнаружения" " " {
+    
+    properties {
+        wiki.document.id yA5mgpWRBe           
+    }
+    tags Pillar "Spring Cloud" Consul infra
+    perspectives {
+        "Security" "Шифрование транспортного уровня"
+        "Performance" "Высокомасштабируемое"
+        "Scalability" "Поддержка большого количества сервисов"
+        "Availability" "Высокая доступность с отказоустойчивостью"
+    }
+}
+
+logstash = container "Обработчик логов" {
+    properties {
+        wiki.document.id uTsNMeTTuS           
+    }   
+
+    technology Logstash
+    tags ELK infra Tool
+    perspectives {
+        "Security" "Шифрование данных"
+        "Performance" "Параллельная обработка"
+        "Scalability" "Горизонтально масштабируемое"
+        "Availability" "Отказоустойчивость кластеризацией"
+    }
+    -> elastic "push logs" "" "aux"
+}
+filebeat = container "Коллектор логов" {
+    technology "Filebeat"
+    tags ELK infra Tool
+    description "Log shipper for forwarding logs"
+    perspectives {
+        "Security" "Передача зашифрованных логов"
+        "Performance" "Малоизбыточность"
+        "Scalability" "Эластичная масштабируемость"
+        "Availability" "Высокая доступность с отказоустойчивостью"
+    }
+    -> logstash "push logs" "" "aux, async"
+}
+
+zipkin = container "Open Zipkin" {
+    tags infra Zipkin Tool
+    description "Cистема распределенной трассировки"
+    properties {
+        wiki.document.id USTBrB5d2Z
+    }
+
+    perspectives {
+        "Security" "Зашифрованное взаимодействие"
+        "Performance" "Малоизбыточность"
+        "Scalability" "Горизонтально масштабируемое"
+        "Availability" "Отказоустойчивость репликацией"
+    }
+    -> elastic "Хранение трейсов" "HTTP" "safe, sync, aux"
+}
+git2consul = container "git2consul" "Синхронизация конфигураций из Git в Consul" " " {
+    tags infra future "Spring Cloud" Tool
+    perspectives {
+        "Security" "Зашифрованное взаимодействие"
+        "Performance" "Эффективная синхронизация"
+        "Scalability" "Горизонтальное масштабирование"
+        "Availability" "Высокая доступность с отказоустойчивостью"
+    }
+    -> consul "Обновляет конфигурацию" "" "aux, sync"
+}
+prometheus = container Prometheus "Система мониторинга и сбора метрик" {
+    tags infra Prometheus Tool
+    properties {
+        wiki.document.id 3ARaSW3scG
+    }    
+    perspectives {
+        "Security" "Аутентификация и авторизация"
+        "Performance" "Низкозатратное инструментирование"
+        "Scalability" "Масштабируемость для больших сред"
+        "Availability" "Высокая доступность кластеризацией"
+    }
+}
+grafana = container Grafana "Система мониторинга и визуализации метрик" {
+    tags Grafana infra browser Tool
+    perspectives {
+        "Security" "Ролевая модель доступа"
+        "Performance" "Интерактивный дэщборд"
+        "Scalability" "Горизонтальное масштабирование"
+        "Availability" "Высокая доступность кластеризацией"
+    }
+    -> prometheus "Получает метрики" "HTTP" "safe, sync, aux"
+}
+kibana = container Kibana "Система визуализации и управления Elasticsearch" " " {
+    tags ELK infra Kibana browser Tool
+    perspectives {
+        "Security" "Ролевая модель доступа"
+        "Performance" "Почти реальное время индексации"
+        "Scalability" "Эластичная масштабируемость"
+        "Availability" "Высокая доступность репликацией"
+    }
+    -> elastic "get logs" "HTTP" "aux, sync"
+}
