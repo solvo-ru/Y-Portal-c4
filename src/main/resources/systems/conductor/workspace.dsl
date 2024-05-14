@@ -96,6 +96,29 @@ workspace extends ../../solvo-landscape.dsl {
                         "Availability" "Высокая доступность репликацией"
                     }
                     -> broker "запуск подпроцессов" "Call Activity" "async, major, vague"
+                    Group "Процесс 'Заявка'" { 
+                        valid = component validate "" "" "unreal"
+                        putR = component storeRequest "" "" "unreal"
+                        postR = component updateRequest "" "" "unreal"
+                        noteR  = component noteRequest "" "" "unreal"
+                        choose = component choose "" "" "unreal"
+                        sendR = component sendResult "" "" "unreal"
+                    }
+                    Group  "Процесс 'Предложение'" {
+                       // find = component observe "" "" "unreal"
+                        putO = component storeOffer "" "" "unreal"
+                        sendO = component sendOffer "" "" "unreal"
+                        postO = component updateOffer "" "" "unreal"
+                    }
+                    valid -> putR "данные ОК" "" "sync, vague"
+                    putR -> postR "активировать" "" "sync, vague"
+                    postR -> noteR "оповестить" "" "sync, vague"
+                    noteR -> choose "собрать предложения" "" "sync, vague"
+                    choose -> sendR "выбран исполнитель" "" "sync, vague"
+                    sendR -> postO "сигнал" "" "sync, message, leap"
+                                        
+                    putO -> sendO "" "" "sync, vague"
+                    sendO -> postO "" "" "sync, vague"
                 }
                 gateway = container "Zeebe Gateway" {
                     tags Tool
@@ -151,6 +174,40 @@ workspace extends ../../solvo-landscape.dsl {
             }
         
         }
+            frontL = element "Браузер логиста" {
+                tags unreal browser
+            }
+             frontF = element "Браузер экспедитора" {
+                tags unreal browser
+            }
+
+        Group Workers {
+            request = element Заявки {
+                tags unreal
+            }
+            offer = element Предложения {
+                tags unreal
+            }
+            ref = element Справочники {
+                tags unreal
+            }
+            note = element Оповещения {
+                tags unreal
+            }
+        }
+        valid -> ref "проверить ссылки в json" "" "collect,  major, command"
+        putR -> request "сохранить новую" "" "collect, major, command"
+        postR -> request "обновить статус" "" "collect,major, command"
+        putO -> offer "сохранить новое" "" "collect,major, command"
+        postO -> offer "обновить статус" "" "collect,major, command"
+        note -> choose "сбор предложений" "" "sync, message, leap"
+        sendO -> note "на рассмотрение" "" "collect,major, command"
+
+        frontL  -> choose "сделать выбор" "" "sync, request"
+        
+        frontL -> valid "Создать заявку" "" "major, sync, request"
+        frontF -> putO "Создать предложение" "" "major, sync, request"
+
         production = deploymentEnvironment "Production" {
             kuberNode1 = deploymentGroup kuberNode1
             kuberNode2 = deploymentGroup kuberNode2
@@ -252,11 +309,16 @@ workspace extends ../../solvo-landscape.dsl {
         container bpm camunda-arch "Компоненты оркеcтратора" {
             include *
             include queue
-
+            exclude element.tag==unreal
         }
         deployment * production vendor-schema "Рекомендованная схема" {
             include *
             exclude relationship==*
+            exclude element.tag==unreal
+
+        }
+        component broker vague-bpmn "Схема оркестрации" {
+            include element.tag==unreal
         }
     }
 }

@@ -94,7 +94,8 @@ workspace "Базовые стили" {
                 thickness 3
                 style Dotted
                 routing Direct
-                fontSize 20
+                fontSize 35
+                width  300
                 color ${GREEN-}
             }
 
@@ -478,6 +479,16 @@ workspace "Базовые стили" {
              element ep {
                icon icons/ep.svg
            }
+
+           element unreal {
+               background ${TEAL}
+               stroke ${TEAL_}
+               color white
+               width 350
+               height 180
+               fontSize 38
+           }
+
         }
     }
 }

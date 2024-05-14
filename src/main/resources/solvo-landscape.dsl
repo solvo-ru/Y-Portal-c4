@@ -15,6 +15,11 @@ workspace "Экосистема продуктов Solvo" {
 
     model {
 
+         properties {
+            structurizr.groupSeparator "/"
+        }
+
+
         Group "Внешние бизнес-системы" {
             mdm = softwareSystem "MDM" "Система управления справочными данными"  {
                 tags External 

@@ -128,8 +128,21 @@ workspace extends ../../solvo-landscape.dsl {
                     tags doubt 
                 }
 
+                statusWorker = container Status {
+                    !include ../../fragments/worker-dummy.pdsl
+                }
+
+                commentsWorker = container commentsWorker {
+                    !include ../../fragments/worker-dummy.pdsl
+                    tags future 
+                }
+
                 messageWorker = container "Notifier" {
                     !include ../../fragments/worker-dummy.pdsl
+                    address = component Addresser
+                    templater = component templater
+                    sender = component sender
+                    task = component tasker
                     -> app "Оповещения" "SSE" "async, message, major" 
                 }
 
@@ -144,7 +157,7 @@ workspace extends ../../solvo-landscape.dsl {
 
                 shipmentWorker = container "Shipment worker" {
                     !include ../../fragments/worker-dummy.pdsl  
-                     tags future
+                    tags future
                 }
 
 
