@@ -1,0 +1,47 @@
+@startuml
+
+!include abstract-data-model.puml
+remove Displayable
+remove Temporal
+remove Typed
+entity REGISTRY <<table>> {
+    *ID uuid <<generated>>
+    --
+    * **TITLE string**
+}
+REGISTRY .up.> ::REGISTRY
+ITEM -left-* REGISTRY
+
+class ITEM <<table>>  {
+    *ID uuid <<generated>>
+    *REGISTRY: uuid <<FK>>
+    --
+    * **TITLE string**
+}
+ITEM .up.> ::ITEM
+
+metaclass REGISTRY_SCHEMA <<table>>   {
+    *ID uuid <<generated>>
+    *REGISTRY: uuid <<FK>>
+    --
+    * **SCHEMA jsonb**
+    --
+    START timestamp
+    END timestamp
+}
+REGISTRY_SCHEMA ..|> Temporal
+REGISTRY_SCHEMA -up-* REGISTRY
+
+REGISTRY_SCHEMA .up.> FORM
+
+class REFERENCE <<table>>{
+    *ID uuid <<generated>>
+    *SCHEMA: uuid <<FK>>
+    --
+    * **DATA jsonb**
+}
+REFERENCE -left-* REGISTRY_SCHEMA
+REFERENCE .up.> FORM
+
+
+@enduml

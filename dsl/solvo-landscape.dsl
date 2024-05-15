@@ -128,9 +128,10 @@ workspace "Экосистема продуктов Solvo" {
             "structurizr.locale" "ru-RU"
         }
     }
+            !script scripts/landscape.groovy {
 
+            }
             !script scripts/Tagger.groovy {
-                type workspace
             }
 
 }

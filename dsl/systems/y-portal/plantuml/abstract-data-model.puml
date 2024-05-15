@@ -1,0 +1,133 @@
+@startuml
+hide empty members
+interface Identifiable {
+  getId()
+}
+'note left: //Идентифицируемость//\n(однозначно находится системой)
+interface Typed {
+    RECORD getType()
+}
+'note left: //Классифицируемость//\n(входит в коллекцию)
+
+interface Displayable {
+    String getTitle()
+}
+'note left: //Отображаемость//\n(однозначно находится человеком)
+
+interface Temporal {
+    Period getLife()
+}
+'note left: //Временность//\n(имеет ограниченный срок жизни)
+
+interface Body {
+    Object getBody()
+}
+'note left: //Содержательность//\n(имеет структуру/тело)
+
+interface Type {
+    Record[] getRecords()
+}
+'note left: //Тип/класс//\n(является коллекцией элементов, списком)
+interface Meta {
+    Object getSchema()
+}
+'note left: //Схема данных//\n(описывает структуру)
+remove Displayable
+remove Temporal
+remove Body
+remove Typed
+remove Identifiable
+remove Meta
+remove Type
+
+abstract RECORD <<Identifiable>> {
+    UUID id
+}
+'note right: Запись таблицы БД
+RECORD ..|> Identifiable
+
+abstract ENTRY <<Displayable>>  {
+    UUID id
+    String title
+}
+'note right: Объект с наименованием
+ENTRY -up-|> RECORD
+ENTRY ..|> Displayable
+
+abstract DOCUMENT <<Body>> {
+    UUID id
+    JSON body
+}
+DOCUMENT -up-|> RECORD
+DOCUMENT ..|> Body
+
+abstract ::ITEM <<Typed>>{
+    UUID id
+    String title
+    List type
+}
+'note right: Элемент простого списка
+::ITEM -up-|> ENTRY
+::ITEM ..|> Typed
+
+abstract LIST <<Type>> {
+    UUID id
+    String title
+}
+LIST -up-|> ENTRY
+::ITEM -left-* LIST
+
+
+abstract ::REGISTRY {
+    UUID id
+    String title
+}
+::REGISTRY -up-|> LIST
+
+abstract SCHEMA<? extends ::REGISTRY> <<Meta>> <<Type>> <<Temporal>>{
+    UUID id
+    JSON schema
+}
+
+abstract ::REGISTRY_SCHEMA <<Typed>>{
+    UUID id
+    JSON schema
+}
+::REGISTRY_SCHEMA -up-|> SCHEMA
+
+::REGISTRY_SCHEMA -left-* ::REGISTRY
+
+abstract ::REFERENCE {
+    UUID id
+    JSON data
+    ....
+    SCHEMA schema
+    ....
+    String displayString
+}
+::REFERENCE -left-* ::REGISTRY_SCHEMA
+::REFERENCE -up-|> FORM
+::REFERENCE ..|> Body
+
+abstract FORM <<Displayable>> <<Typed>>  {
+    UUID id
+    JSON data
+    ....
+    SCHEMA schema
+    ....
+    String displayString
+
+}
+FORM ..|> Typed
+FORM ..|> Displayable
+FORM -up-|>  DOCUMENT
+FORM -left-* SCHEMA
+
+SCHEMA ..|> Type
+SCHEMA ..|> Meta
+
+
+SCHEMA -up-|> DOCUMENT
+
+@enduml
+

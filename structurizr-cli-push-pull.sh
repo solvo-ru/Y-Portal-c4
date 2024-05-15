@@ -12,3 +12,7 @@ structurizr.sh push -url https://structurizr.moarse.ru/api -id 2 -key 44315f4b-6
 #Cloud
 #structurizr.sh push -url https://structurizr.moarse.ru/api -id 6 -key 78d51b26-e8c0-4b3a-ae28-20b6d37eca34 -secret bb2afc4f-8f58-4a53-b58f-e3086e7555fd -workspace src/main/resources/systems/cloud/workspace.dsl -archive false
 
+
+#Landscape
+#structurizr.sh push -url https://structurizr.moarse.ru/api -id 4 -key b1cec52a-c65b-4ca0-a526-1650b9bf6155 -secret cb394e4d-48b2-4cc8-95e6-b662e0dba912 -workspace src/main/resources/solvo-landscape.dsl -archive false
+

@@ -4,8 +4,8 @@ workspace extends ../../solvo-landscape.dsl {
     description "[Camunda Edition]"
     properties {
          wiki.document.id GKzQMcy43s
-    }
 
+    }
     !impliedRelationships true
     !identifiers hierarchical
 
@@ -184,7 +184,6 @@ workspace extends ../../solvo-landscape.dsl {
             }
 
             !script ../../scripts/Tagger.groovy {
-                type system
             }
         }
 

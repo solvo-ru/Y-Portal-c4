@@ -1,0 +1,36 @@
+@startuml
+!include abstract-data-model.puml
+remove Displayable
+remove Temporal
+remove Typed
+class TRANSPORT_REQUEST <<table>> {
+    *ID uuid <<generated>>
+    --
+    * **DATA jsonb**
+    --
+    DISPLAY_STRING string
+    --
+    SEARCH_STRING string
+    --
+    STATUS enum
+    --
+        CREATE timestamp
+        UPDATE timestamp
+}
+TRANSPORT_REQUEST .up.> FORM
+metaclass TRANSPORT_REQUEST_SCHEMA  <<table>> {
+    *ID uuid <<generated>>
+    --
+    * **SCHEMA jsonb**
+    --
+    START timestamp
+    END timestamp
+    --
+    CREATE timestamp
+    UPDATE timestamp
+}
+TRANSPORT_REQUEST_SCHEMA ..|> Temporal
+TRANSPORT_REQUEST -left-* TRANSPORT_REQUEST_SCHEMA
+TRANSPORT_REQUEST_SCHEMA .up.> SCHEMA
+
+@enduml

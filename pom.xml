@@ -5,34 +5,13 @@
   <groupId>ru.solvo</groupId>
   <artifactId>solvo-c4-landscape</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
 
   <name>Solvo ecosystem C4 landscape</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
   </properties>
-  <repositories>
-    <repository>
-      <id>central1</id>
-      <name>Central Repository</name>
-      <url>https://repo1.maven.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>central</id>
-      <name>Central Repository</name>
-      <url>https://repo.maven.apache.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
 
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>com.structurizr</groupId>
@@ -49,21 +28,6 @@
 
   <build>
     <defaultGoal>clean install</defaultGoal>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.4.1</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <classpathPrefix/>
-              <mainClass>ru.solvo.c4.UpdateLandscape</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
+    
   </build>
 </project>
