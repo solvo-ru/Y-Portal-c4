@@ -60,43 +60,60 @@ abstract DOCUMENT <<Body>> {
 }
 DOCUMENT -up-|> RECORD
 DOCUMENT ..|> Body
-
+namespace "Простые справочники" as simple {
+abstract LIST <<Type>> {
+    UUID id
+    String title
+}
 abstract ::ITEM <<Typed>>{
     UUID id
     String title
     List type
 }
+}
 'note right: Элемент простого списка
 ::ITEM -up-|> ENTRY
 ::ITEM ..|> Typed
 
-abstract LIST <<Type>> {
-    UUID id
-    String title
-}
+
 LIST -up-|> ENTRY
 ::ITEM -left-* LIST
 
 
-abstract ::REGISTRY {
+
+
+namespace "Выделенные сущности" as single {
+    abstract SCHEMA<? extends FORM> <<Meta>> <<Type>> <<Temporal>>{
+        UUID id
+        JSON schema
+    }
+    abstract FORM <<Displayable>> <<Typed>>  {
+        UUID id
+        JSON data
+        ....
+        SCHEMA schema
+        ....
+        String displayString
+    }
+}
+SCHEMA ..|> Type
+SCHEMA ..|> Meta
+SCHEMA -up-|> DOCUMENT
+FORM ..|> Typed
+FORM ..|> Displayable
+FORM -up-|>  DOCUMENT
+FORM -left-* SCHEMA
+
+abstract CATALOGUE {
     UUID id
     String title
 }
-::REGISTRY -up-|> LIST
+CATALOGUE -up-|> LIST
 
-abstract SCHEMA<? extends ::REGISTRY> <<Meta>> <<Type>> <<Temporal>>{
+abstract CATALOGUE_SCHEMA <<Typed>>{
     UUID id
     JSON schema
 }
-
-abstract ::REGISTRY_SCHEMA <<Typed>>{
-    UUID id
-    JSON schema
-}
-::REGISTRY_SCHEMA -up-|> SCHEMA
-
-::REGISTRY_SCHEMA -left-* ::REGISTRY
-
 abstract ::REFERENCE {
     UUID id
     JSON data
@@ -105,29 +122,17 @@ abstract ::REFERENCE {
     ....
     String displayString
 }
-::REFERENCE -left-* ::REGISTRY_SCHEMA
+CATALOGUE_SCHEMA -up-|> SCHEMA
+CATALOGUE_SCHEMA -left-* CATALOGUE
+
+
+::REFERENCE -left-* CATALOGUE_SCHEMA
 ::REFERENCE -up-|> FORM
 ::REFERENCE ..|> Body
 
-abstract FORM <<Displayable>> <<Typed>>  {
-    UUID id
-    JSON data
-    ....
-    SCHEMA schema
-    ....
-    String displayString
-
-}
-FORM ..|> Typed
-FORM ..|> Displayable
-FORM -up-|>  DOCUMENT
-FORM -left-* SCHEMA
-
-SCHEMA ..|> Type
-SCHEMA ..|> Meta
 
 
-SCHEMA -up-|> DOCUMENT
+
 
 @enduml
 

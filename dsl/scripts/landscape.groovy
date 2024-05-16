@@ -1,6 +1,7 @@
 import com.structurizr.api.AdminApiClient
 import com.structurizr.api.WorkspaceApiClient
 import groovy.transform.Field
+import com.structurizr.configuration.WorkspaceScope
 
 @Field static final STRUCTURIZR_ONPREMISES_URL = 'https://structurizr.moarse.ru'
 @Field static final ADMIN_API_KEY_PLAINTEXT = 'CozyPlace'
@@ -13,6 +14,10 @@ workspaces.each { subWorkspace ->
         findElementByKey(workspace, getElementKey(softwareSystem))
                 .setUrl("{workspace:${subWorkspace.id}}/diagrams")
     }
+}
+System.out.println(workspace.configuration.scope);
+if (workspace.configuration.scope == WorkspaceScope.SoftwareSystem) {
+    return
 }
 def view = workspace.views.createSystemLandscapeView("solvo-products", "Экосистема продуктов Solvo");
 view.addAllElements();

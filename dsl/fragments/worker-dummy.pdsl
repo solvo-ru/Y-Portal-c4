@@ -16,7 +16,7 @@ srv = component Service  {
     technology "Spring Boot Service"
     tags Java Product
 }
-rest -> srv "" "command, sync, aux"
+rest -> srv "@Autowire" "" "command, sync, aux"
 job = component Worker {
     description "Подписчик"
     technology "Zeebe Spring Client"

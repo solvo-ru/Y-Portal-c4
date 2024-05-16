@@ -1,71 +1,71 @@
 //External
 //----------------------
 //Границы, шрифт на светлом фоне
-!const BLUE_    #0D47A1
+!const BLUE_ #0D47A1
 //Темный фон (контейнер)
-!const BLUE     #1565C0
+!const BLUE #1565C0
 //MESSAGE
-!const BLUE-    #BBDEFB
+!const BLUE- #BBDEFB
 //Светлый фон (система)
-!const BLUE0    #E3F2FD
+!const BLUE0 #E3F2FD
 
 //
 //----------------------
 //Границы, шрифт на светлом фоне
-!const GREEN_   #1B5E20
+!const GREEN_ #1B5E20
 //Темный фон (контейнер)
-!const GREEN    #2E7D32
+!const GREEN #2E7D32
 //REQUEST
-!const GREEN-   #C8E6C9
+!const GREEN- #C8E6C9
 //Светлый фон (система)
-!const GREEN0   #E8F5E9
+!const GREEN0 #E8F5E9
 
 //Aux Tool
 //----------------------
 //Границы, шрифт на светлом фоне
-!const GREY_    #424242
+!const GREY_ #424242
 //Темный фон (контейнер)
-!const GREY     #616161
+!const GREY #616161
 //VAGUE
-!const GREY-    #D3D3D3
+!const GREY- #D3D3D3
 //Светлый фон (система)
-!const GREY0    #F5F5F5
+!const GREY0 #F5F5F5
 
 //Kernel Product
 //----------------------
 //Границы, шрифт на светлом фоне
-!const PURPLE_  #4A148C
+!const PURPLE_ #4A148C
 //Темный фон (контейнер)
-!const PURPLE   #512DA8
+!const PURPLE #512DA8
 //Средний фон (компонент)
-!const PURPLE-  #D1C4E9
+!const PURPLE- #D1C4E9
 //Светлый фон (система)
-!const PURPLE0  #E1BEE7
+!const PURPLE0 #E1BEE7
 
 //Aux Product
 //----------------------
 //Границы, шрифт на светлом фоне 
-!const TEAL_  #008080
+!const TEAL_ #008080
 //Темный фон (контейнер)
-!const TEAL   #5F9EA0
+!const TEAL #5F9EA0
 //Средний фон (компонент)
-!const TEAL-  #B0E0E6
+!const TEAL- #B0E0E6
 //CHECK
-!const TEAL0  #F0FFFF
+!const TEAL0 #F0FFFF
 
 //Accent
 //----------------------
 //Границы и шрифт групп
-!const RED_     #B71C1C
+!const RED_ #B71C1C
 //
-!const RED      #C62828
+!const RED #C62828
 //
-!const RED-     #FFB6C1
+!const RED- #FFB6C1
 //COMMAND
-!const RED0     #FF6347
+!const RED0 #FF6347
 
 //SAFE
-!const GOLD     #DAA520
+!const GOLD #DAA520
 
 //!const CAMUNDA  #FC5D0D
 //!const SPRING  #6EB23F
@@ -95,7 +95,7 @@ workspace "Базовые стили" {
                 style Dotted
                 routing Direct
                 fontSize 35
-                width  300
+                width 300
                 color ${GREEN-}
             }
 
@@ -113,12 +113,12 @@ workspace "Базовые стили" {
             //По участникам
             relationship leap {
                 //Опосредованное / косвенное / умозрительное
-               routing Curved
+                routing Curved
             }
 
             relationship collect {
                 //Агрегирующее 
-               routing Orthogonal
+                routing Orthogonal
             }
 
             //По вкладу 
@@ -177,14 +177,14 @@ workspace "Базовые стили" {
                 opacity 70
             }
 
-            element Group  {
+            element Group {
                 fontSize 45
                 strokeWidth 5
                 stroke ${RED_}
                 color ${RED_}
             }
 
-            element Boundary  {
+            element Boundary {
                 fontSize 60
                 strokeWidth 6
                 metadata false
@@ -201,15 +201,15 @@ workspace "Базовые стили" {
                 background white
             }
 
-            element Analyst  {
+            element Analyst {
                 icon icons/anal.png
             }
 
-            element Administrator  {
+            element Administrator {
                 icon icons/devops.png
             }
 
-            element Security  {
+            element Security {
                 icon icons/seq.png
             }
 
@@ -235,14 +235,14 @@ workspace "Базовые стили" {
             }
 
             element "External [system]" {
-               stroke ${BLUE_}
-               color ${BLUE_}
-               background ${BLUE0}
+                stroke ${BLUE_}
+                color ${BLUE_}
+                background ${BLUE0}
             }
             element "External [container]" {
-               stroke ${BLUE_}
-               color white
-               background ${BLUE}
+                stroke ${BLUE_}
+                color white
+                background ${BLUE}
             }
 
             //Ключевые инструменты
@@ -250,19 +250,19 @@ workspace "Базовые стили" {
                 stroke ${GREEN_}
             }
             element "Pillar [system]" {
-               stroke ${GREEN_}
-               color ${GREEN_}
-               background ${GREEN0}
+                stroke ${GREEN_}
+                color ${GREEN_}
+                background ${GREEN0}
             }
-            element "Pillar [container]"  {
-               stroke ${GREEN_}
-               color white
-               background ${GREEN}
+            element "Pillar [container]" {
+                stroke ${GREEN_}
+                color white
+                background ${GREEN}
             }
             element "Pillar [component]" {
-              strokeWidth 0
-              color ${GREEN_}
-              background ${GREEN-}
+                strokeWidth 0
+                color ${GREEN_}
+                background ${GREEN-}
             }
 
             //Вспомогательные инструменты
@@ -274,7 +274,7 @@ workspace "Базовые стили" {
                 color ${GREY_}
                 background ${GREY0}
             }
-            element "Tool [container]"  {
+            element "Tool [container]" {
                 stroke ${GREY_}
                 color white
                 background ${GREY}
@@ -294,7 +294,7 @@ workspace "Базовые стили" {
                 color ${PURPLE_}
                 background ${PURPLE0}
             }
-            element "Product [container]"  {
+            element "Product [container]" {
                 stroke ${PURPLE_}
                 color white
                 background ${PURPLE}
@@ -305,16 +305,16 @@ workspace "Базовые стили" {
                 background ${PURPLE-}
             }
 
-           //Дополнения
-           element Addon {
-               stroke ${TEAL_}
-           }
-           element "Addon [system]" {
+            //Дополнения
+            element Addon {
+                stroke ${TEAL_}
+            }
+            element "Addon [system]" {
                 stroke ${TEAL_}
                 color ${TEAL_}
                 background ${TEAL0}
             }
-            element "Addon [container]"  {
+            element "Addon [container]" {
                 stroke ${TEAL_}
                 color white
                 background ${TEAL}
@@ -343,6 +343,10 @@ workspace "Базовые стили" {
             element mobile {
                 shape MobileDevicePortrait
             }
+            element table {
+                background ${GOLD}
+                strokeWidth 2
+            }
 
             element browser {
                 shape WebBrowser
@@ -365,7 +369,7 @@ workspace "Базовые стили" {
                 width 350
             }
             // element OpenAPI {
-                // shape Folder
+            // shape Folder
             // }
 
 
@@ -379,55 +383,55 @@ workspace "Базовые стили" {
                 background ${RED-}
             }
 
-           //Элементы третьего уровня
-           element Component {
-               shape Box
-               metadata false
-               width 400
-               height 150
-               strokeWidth 0
-               fontSize 20
-           }
-           element tiny {
-               width 320
-               height 100
-               strokeWidth 1
-           }
-           element API {
-               shape Circle
-               width 200
-               metadata false
-           }
+            //Элементы третьего уровня
+            element Component {
+                shape Box
+                metadata false
+                width 400
+                height 150
+                strokeWidth 0
+                fontSize 20
+            }
+            element tiny {
+                width 320
+                height 100
+                strokeWidth 1
+            }
+            element API {
+                shape Circle
+                width 200
+                metadata false
+            }
 
-            element Redis  {
+            element Redis {
                 icon icons/redis.png
             }
 
-            element Java  {
+            element Java {
                 icon icons/java.svg
             }
 
-            element Logback  {
+            element Logback {
                 icon icons/logback.svg
             }
 
-            element Grafana  {
+            element Grafana {
                 icon icons/grafana.svg
             }
 
-            element Prometheus  {
+            element Prometheus {
                 icon icons/prometheus.svg
             }
 
-            element Zipkin  {
-               icon icons/zipkin.png
+            element Zipkin {
+                icon icons/zipkin.png
             }
 
             element Postgres {
-               icon icons/postgresql.png
+                icon icons/postgresql.png
             }
             element Rabbit {
-               icon icons/rabbit.svg
+                icon icons/rabbit.svg
             }
 
             element "Spring Cloud" {
@@ -438,56 +442,60 @@ workspace "Базовые стили" {
                 icon icons/spring-boot.svg
             }
 
-
-
-            element Solvo  {
+            element Solvo {
                 icon icons/solvo-icon.png
             }
 
-            element Keycloak  {
+            element Keycloak {
                 icon icons/keycloak.png
             }
-            element ELK  {
-               icon icons/elk.png
-           }
-           element Consul  {
-               icon icons/consul.png
-           }
-           element "Deployment Node" {
+            element ELK {
+                icon icons/elk.png
+            }
+
+            element Consul {
+                icon icons/consul.png
+            }
+
+            element Minio {
+                icon icons/minio.png
+            }
+
+            element "Deployment Node" {
                 stroke ${BLUE}
                 color ${BLUE}
                 strokeWidth 5
             }
-           element pv  {
-               icon icons/pv.svg
-           }
-           element pod  {
-               icon icons/pod.svg
-           }
-           element svc  {
-               icon icons/svc.svg
-           }
-           element deploy  {
-               icon icons/deploy.svg
-           }
-           element node {
-               icon icons/node.svg
-           }
+            element pv {
+                icon icons/pv.svg
+            }
+            element pod {
+                icon icons/pod.svg
+            }
+            element svc {
+                icon icons/svc.svg
+            }
+            element deploy {
+                icon icons/deploy.svg
+            }
+            element node {
+                icon icons/node.svg
+            }
             element dock {
-               icon icons/dock.svg
-           }
-             element ep {
-               icon icons/ep.svg
-           }
+                icon icons/dock.svg
+            }
+            element ep {
+                icon icons/ep.svg
+            }
 
-           element unreal {
-               background ${TEAL}
-               stroke ${TEAL_}
-               color white
-               width 350
-               height 180
-               fontSize 38
-           }
+            element unreal {
+                background ${TEAL}
+                stroke ${TEAL_}
+                color white
+                width 350
+                height 180
+                fontSize 38
+            }
 
         }
     }

@@ -1,0 +1,8 @@
+@startuml
+!include abstract-data-model.puml
+!include request-data-er.puml
+remove leg
+TRANSPORT_REQUEST .up.> FORM
+TRANSPORT_REQUEST_SCHEMA ..|> Temporal
+TRANSPORT_REQUEST_SCHEMA .up.> SCHEMA
+@enduml

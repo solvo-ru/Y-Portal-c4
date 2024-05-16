@@ -82,7 +82,7 @@ workspace "Экосистема продуктов Solvo" {
 
         }
 
-        iam = softwareSystem "Keycloak" {
+        iam = softwareSystem Keycloak {
             description "Управление аутентификацией и авторизацией"
             tags Keycloak Pillar
             perspectives {
@@ -91,6 +91,11 @@ workspace "Экосистема продуктов Solvo" {
                 "Scalability" "Горизонтальное масштабирование для высокой пропускной способности"
                 "Availability" "Высокая доступность кластеризацией"
             }
+        }
+
+        s3 = softwareSystem Minio {
+            description "Объектное S3-хранилище"
+            tags Minio Pillar
         }
 
         queue = softwareSystem "Брокер сообщений" "Асинхронное взаимодействие"  {
@@ -107,11 +112,12 @@ workspace "Экосистема продуктов Solvo" {
         tos -> queue "Текущие интеграции"  "" "leap, vague, major"
 
         yportal -> bpm "Запуск процессов, выполнение задач" "HTTPS/gRPC" "command, sync, major"
-        yportal -> iam "Доступ" "HTTPS JWT" "check, sync, major"
+        yportal -> iam "Аутентификация и авторизация" "HTTPS JWT" "check, sync, major"
+        yportal -> s3 "Файлы" "HTTP" "major, sync, safe"
         queue -> mdm "Синхронизаця" "" "leap, vague"
         queue -> erp "" "" "leap, vague, major"
-        iam -> idm "Аутентификация" "JWT/SSO/OAuth" "check, sync, aux"
-        iam -> ams "Авторизация" "RBAC/ABAC" "check, sync, aux"        
+        iam -> idm "Внешняя аутентификация" "JWT/SSO/OAuth" "check, sync, aux"
+        iam -> ams "Внешняя авторизация" "RBAC/ABAC" "check, sync, aux"
         queue -> tms "" "" "leap, vague, major" 
 
         bpm -> queue "Интеграционное взаимодействие" "Connectors" "async, major, leap, message"

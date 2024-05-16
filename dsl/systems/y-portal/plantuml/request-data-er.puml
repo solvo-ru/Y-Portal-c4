@@ -1,0 +1,63 @@
+@startuml
+note as leg
+**Интерфейсы** наделяют объекты свойствами
+==
+..<<searchable>>..
+Поля для отображения и поиска в списках, dropdown, etc. Заданы формулой в схеме
+..<<temporal>>..
+Период актуальности <u>версионируемых</u> данных
+..<<flowable>>..
+Задает жизненный цикл. <i>Сущности без этого свойства - константы
+..<<auditable>>..
+Spring JPA. //Эти поля **не** должны использоваться в бизнес-процессах//
+..<<meta>>..
+Дополнительные мета-данные (поверх //JSONSchema//). Cложные условия валидации, web-формы, etc
+end note
+entity TRANSPORT_REQUEST {
+   * id: uuid
+   schema: uuid
+   * **data: jsonb**
+   ==
+   ..<<searchable>>..
+   * display_string: text <<generated>>
+   * search_string: text <<generated>>
+'   ..<<importable>>..
+'   source: uuid
+'   source_id: text
+   ..<<flowable>>..
+   status: uuid
+   process: uuid
+   ..<<auditable>>..
+   created: timestamp
+   creator: uuid
+   updated: timestamp
+   updater: uuid
+   --|| intrinsic ||--
+   * logist: uuid
+   forwarder: uuid
+   carrier: uuid
+}
+entity TRANSPORT_REQUEST_SCHEMA {
+   *id: uuid
+   * **schema: jsonb**
+   ==
+   ..<<temporal>>..
+   start: timestamp
+   end: timestamp
+   ..<<flowable>>..
+   status: uuid
+   process: uuid
+   ..<<auditable>>..
+   created: timestamp
+   creator: uuid
+   updated: timestamp
+   updater: uuid
+   ..<<meta>>..
+   rules: jsonb
+   form: jsonb
+}
+TRANSPORT_REQUEST::schema }o-left-o| TRANSPORT_REQUEST_SCHEMA::id
+TRANSPORT_REQUEST .up. leg
+TRANSPORT_REQUEST_SCHEMA .up. leg
+
+@enduml

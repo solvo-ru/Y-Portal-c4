@@ -8,8 +8,7 @@ elastic = container "Аналитическое хранилище" {
         "Availability" "Высокая доступность  репликацией"
     }
 }
-consul = container "Consul" "Сервис конфигурации и обнаружения" " " {
-    
+consul = container "Consul" "Сервис конфигурации и обнаружения" " " {    
     properties {
         wiki.document.id yA5mgpWRBe           
     }
@@ -37,10 +36,10 @@ logstash = container "Обработчик логов" {
     }
     -> elastic "push logs" "" "aux"
 }
-filebeat = container "Коллектор логов" {
-    technology "Filebeat"
+filebeat = container Filebeat {
+    //technology "Filebeat"
     tags ELK infra Tool
-    description "Log shipper for forwarding logs"
+    description "Коллектор логов"
     perspectives {
         "Security" "Передача зашифрованных логов"
         "Performance" "Малоизбыточность"
@@ -75,7 +74,7 @@ git2consul = container "git2consul" "Синхронизация конфигур
     }
     -> consul "Обновляет конфигурацию" "" "aux, sync"
 }
-prometheus = container Prometheus "Система мониторинга и сбора метрик" {
+prometheus = container Prometheus "Мониторинг и сбор метрик" {
     tags infra Prometheus Tool
     properties {
         wiki.document.id 3ARaSW3scG

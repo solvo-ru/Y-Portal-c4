@@ -86,8 +86,8 @@ workspace extends ../../solvo-landscape.dsl {
                 !include ../../fragments/cloud.pdsl      
                  
             }
-            apiGateway -> yPortal.consul "Регистрация, конфигурация" "aux, collect, safe"
-            bpm -> yPortal.consul "Регистрация, конфигурация" "aux, collect, safe"
+            apiGateway -> yPortal.consul "Регистрация, конфигурация" "DNS/HTTP" "aux, collect, safe"
+            bpm -> yPortal.consul "Регистрация, конфигурация" "DNS/HTTP" "aux, collect, safe"
 
 
 
@@ -103,17 +103,24 @@ workspace extends ../../solvo-landscape.dsl {
                 }
                 trDb = container "Request Database" {
                     technology "PostreSQL 16"
-                    tags db Postgres 
+                    tags db Postgres
+                    request = component REQUEST "" Table "table"
+                    requestSchema = component REQUEST_SCHEMA "" Table "table"
+                    request -> requestSchema "schemaId" "FK" "vague"
                 }
                 requestWorker.repo -> trDb "" "JDBC" "safe, sync, major"
 
                 offerWorker = container "Offer worker" { 
                     description "Сервис предложений"
                     !include ../../fragments/worker-dummy.pdsl
+                    
                 }
                 offerDb = container "Offer Database" {
                     technology "PostreSQL 16"
                     tags db Postgres 
+                    offer = component OFFER "" Table "table"
+                    offerSchema = component OFFER_SCHEMA "" Table "table"
+                    offer -> offerSchema "schemaId" "FK" "vague"
                 }
                 offerWorker.repo -> offerDb "" "JDBC" "safe, sync, major"
 
@@ -134,12 +141,12 @@ workspace extends ../../solvo-landscape.dsl {
 
                 commentsWorker = container commentsWorker {
                     !include ../../fragments/worker-dummy.pdsl
-                    tags future 
+                    tags future Addon
                 }
 
                 messageWorker = container "Notifier" {
                     !include ../../fragments/worker-dummy.pdsl
-                    address = component Addresser
+                    address = component addresser
                     templater = component templater
                     sender = component sender
                     task = component tasker
@@ -152,6 +159,14 @@ workspace extends ../../solvo-landscape.dsl {
                 refDb = container "Master Data DB" {
                     technology "PostreSQL 16"
                     tags db Postgres 
+                   
+                    reference = component REFERENCE "Элементы справочников" Table "table"
+                    referenceSchema = component REFERENCE_SCHEMA "Схемы справочников" Table "table"
+                    registry = component REGISTRY "Справочники и списки" Table "table"
+                    item = component ITEM "Элементы списков" Table "table"
+                    reference -> referenceSchema "schemaId" "FK" "vague"
+                    referenceSchema -> registry "registryId" "FK" "vague"
+                    item -> registry "registryId" "FK" "vague"
                 }
                 referenceWorker.repo -> refDb "" "JDBC" "safe, sync, major"
 
@@ -232,7 +247,8 @@ workspace extends ../../solvo-landscape.dsl {
             //     }
             // }
         }
-        yPortal.apiGateway -> bpm "Запуск процессов, выполнение задач" "gRPC" "sync, major, command" 
+        yPortal.apiGateway -> bpm "Запуск процессов, выполнение задач" "gRPC" "sync, major, command"
+        yPortal.apiGateway -> s3 "Хранение файлов" "HTTP" "safe, sync, aux"
         // apiGateway -> tasklist "управление процессами" "HTTP REST/JSON" "HTTP"
         // apiGateway -> operate "техподдержка" "HTTP REST/JSON" "HTTP"
         // apiGateway -> optimize "администрирование" "HTTP REST/JSON" "HTTP"
@@ -288,7 +304,7 @@ workspace extends ../../solvo-landscape.dsl {
             exclude "element.tag==external && element.tag!=abstract"
            
             //exclude "element.tag==db"
-             exclude "element.tag==future"
+            exclude "element.tag==future"
             exclude "element.tag==doubt"
         }
 
@@ -297,8 +313,20 @@ workspace extends ../../solvo-landscape.dsl {
              include *
          }
         component yPortal.requestWorker request-structure "Компоненты микросервиса 'Заявка на перевозку'" {
+            title "Заявка на перевозку"
             include *
             exclude bpm->*
+        }
+
+        component yPortal.refDb api-to-db "Схема ветвления запросов на примере сервиса Reference" {
+            title "Потоки данных" 
+            include element==yPortal.web
+            include element==yPortal.apiGateway
+            include element==bpm
+            //include element==yPortal.referenceWorker
+            include element.parent==yPortal.referenceWorker
+            include element.parent==yPortal.refDb
+            exclude element.tag==infra
         }
 
 
@@ -321,7 +349,7 @@ workspace extends ../../solvo-landscape.dsl {
             //bpm -> bpm "Отправить сообщение в процесс заявки" 
             router -> bpm "Выбрать победителя"
             dispatcher -> bpm "Подтвердить выполнение"
-            bpm -> yms "Создать автовизит" 
+            bpm -> yms "Создать автовизит"
         }
 
 

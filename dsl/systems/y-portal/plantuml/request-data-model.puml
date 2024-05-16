@@ -1,36 +1,26 @@
 @startuml
-!include abstract-data-model.puml
-remove Displayable
-remove Temporal
-remove Typed
-class TRANSPORT_REQUEST <<table>> {
-    *ID uuid <<generated>>
-    --
-    * **DATA jsonb**
-    --
-    DISPLAY_STRING string
-    --
-    SEARCH_STRING string
-    --
-    STATUS enum
-    --
-        CREATE timestamp
-        UPDATE timestamp
+
+title Сравнение классической модели БД с документальной на примере сервиса 'Заявка на перевозку'
+hide empty members
+
+package "Реляционное хранение" <<database>> #F0FFFF{
+    !include request-data-rel-er.puml
 }
-TRANSPORT_REQUEST .up.> FORM
-metaclass TRANSPORT_REQUEST_SCHEMA  <<table>> {
-    *ID uuid <<generated>>
-    --
-    * **SCHEMA jsonb**
-    --
-    START timestamp
-    END timestamp
-    --
-    CREATE timestamp
-    UPDATE timestamp
+
+package "Хранение объектов в JSON-столбцах" <<database>> #F0FFFF {
+    !include request-data-json.puml
+    !include request-data-er.puml
+
+    TRANSPORT_REQUEST::data .[#blue,thickness=3]right.# dto : //полный JSON-объект//
+
 }
-TRANSPORT_REQUEST_SCHEMA ..|> Temporal
-TRANSPORT_REQUEST -left-* TRANSPORT_REQUEST_SCHEMA
-TRANSPORT_REQUEST_SCHEMA .up.> SCHEMA
+
+TRANSPORT_REQUEST .down. yms_transportation_request
+dto .down. yms_transportation_goal
+dto .down. yms_transportation_request_candidate
+dto .down. yms_expected_set_type
+note bottom of yms_transportation_request_history: Хранится в **BPM**
+note bottom of yms_transportation_request_file: Хранится в **S3**
+note bottom of yms_transportation_request_comment: Отдельный сервис
 
 @enduml

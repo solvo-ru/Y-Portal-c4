@@ -1,5 +1,5 @@
 @startuml
-
+hide empty members
 !include abstract-data-model.puml
 remove Displayable
 remove Temporal

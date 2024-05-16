@@ -1,0 +1,103 @@
+@startuml
+
+entity yms_transportation_request {
+  * id : integer
+  - number : character varying(255)
+  - customer_id : bigint
+  - status : character varying(255)
+  - validity_period_from : timestamp
+  - validity_period_to : timestamp
+  - source : character varying(255)
+  - expected_vehicle_carrying_capacity : integer
+  - expected_trailer_carrying_capacity : integer
+  ----
+  - created_date : timestamp
+  - modified_date : timestamp
+  - created_by : character varying(255)
+  - modified_by : character varying(255)
+}
+
+entity yms_transportation_request_candidate  {
+  * id : integer
+  * transportation_request_id : bigint
+  * forwarder_id : bigint
+  ----
+  - created_date : timestamp
+  - modified_date : timestamp
+  - created_by : character varying(255)
+  - modified_by : character varying(255)
+}
+
+entity yms_transportation_request_comment {
+  * id : integer
+  - message : character varying(255)
+  - transportation_request_id : bigint
+  ----
+  - created_date : timestamp
+  - modified_date : timestamp
+  - created_by : character varying(255)
+  - modified_by : character varying(255)
+}
+
+entity yms_transportation_request_file {
+  * id : integer
+  * transportation_request_id : bigint
+  - name : character varying(255)
+  - url : character varying(255)
+  ----
+  - created_date : timestamp
+  - modified_date : timestamp
+  - created_by : character varying(255)
+  - modified_by : character varying(255)
+}
+
+entity yms_transportation_request_history {
+  * id : integer
+  * transportation_request_id : bigint
+  - first_status : character varying(255)
+  - last_status : character varying(255)
+  - responsible : character varying(255)
+  - history_event : character varying(255)
+  ----
+  - created_date : timestamp
+  - modified_date : timestamp
+  - created_by : character varying(255)
+  - modified_by : character varying(255)
+}
+
+entity yms_expected_set_type {
+  - id : integer
+  - transportation_request_id : bigint
+  - name : character varying(255)
+  ----
+  - created_date : timestamp
+  - modified_date : timestamp
+  - created_by : character varying(255)
+  - modified_by : character varying(255)
+}
+entity yms_transportation_goal {
+  - id : integer [pk, not null]
+  - transportation_request_id : bigint
+  - direction : character varying(255)
+  - sender_id : bigint
+  - shipper_id : bigint
+  - location_to_loading_id : bigint
+  - address_to_loading : character varying(255)
+  - location_to_unloading_id : bigint
+  - address_to_unloading : character varying(255)
+  - expected_arrival_from : timestamp
+  - expected_arrival_to : timestamp
+----
+  - created_date : timestamp
+  - modified_date : timestamp
+  - created_by : character varying(255)
+  - modified_by : character varying(255)
+}
+yms_expected_set_type::transportation_request_id }o-left-|| yms_transportation_request
+yms_transportation_request_history::transportation_request_id }o-up-|| yms_transportation_request
+yms_transportation_request_file::transportation_request_id }o-up-|| yms_transportation_request
+yms_transportation_request_comment::transportation_request_id }o-up-|| yms_transportation_request
+yms_transportation_request_candidate::transportation_request_id }o-left-|| yms_transportation_request
+yms_transportation_goal::transportation_request_id }o-left-|| yms_transportation_request
+
+@enduml

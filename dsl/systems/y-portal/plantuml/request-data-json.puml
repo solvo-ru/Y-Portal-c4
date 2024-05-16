@@ -1,0 +1,32 @@
+@startuml
+json "Данные заявки" as dto #B0E0E6  {
+              "**ID**": "string<uuid>" ,
+              "num": "string" ,
+              "customer": "string<uuid>",
+              "expectedVehicle": "string<uuid>",
+              "comments": ["string<uuid>"],
+              "validSince": "string<datetime>",
+              "validUntill": "string<datetime>",
+              "**status**":  "string<uuid>",
+              "targets": [
+                  {
+                      "sender": "string<uuid>",
+                      "loadLocation": "string<uuid>",
+                      "loadArrival": "string<date-time>",
+                      "recipient": "string<uuid>",
+                      "unloadLocation": "string<uuid>",
+                      "unloadArrival": "string<date-time>",
+                      "cargo": [
+                          {
+                              "description": "string",
+                              "weight": "int",
+                              "volume": "int",
+                              "package": "string",
+                              "owner": "string<uuid>"
+                          }
+
+                      ]
+                  }
+              ]
+          }
+@enduml
