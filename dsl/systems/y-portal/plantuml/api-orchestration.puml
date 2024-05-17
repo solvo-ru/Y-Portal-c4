@@ -1,0 +1,110 @@
+@startuml
+title Оркестрация API
+
+legend top right
+    |<#red>| Создать новый объект\n   (//запуск сбора предложений//)|
+    |<#yellow>| Обновить объект\n   //(изменение статуса)//|
+    |<#green>          | Получить объект/запись\n  (//например, заявку//)|
+    |<#teal>| Получить метаданные\n  (//web-форму заявки//)|
+    |<#C8E6C9>| Получить объект с историей жизненного цикла\n  (//этап жеребьевки//)|
+endlegend
+
+frame "Web-портал" {
+
+    component "API client" as client <<page>> #F0FFFF {
+      portout "GET /entity" as getEntity $get #green
+      portout "GET /entity/schema" as getSchema $get #teal
+      portout "POST /entity" as putEntity $edit #red
+      portout "PUT /entity" as postEntity $edit #yellow
+      postEntity --- putEntity
+    }
+
+
+}
+note right of client: Единообразная //привычная// спецификация\nREST API для клиента
+
+frame "API Gateway"   {
+   () "//**HTTP**//" as HTTP
+  HTTP -[thickness=2] [Mapper]
+  [Mapper] #C8E6C9
+  getEntity -[thickness=2]-> HTTP #green
+  getSchema -[thickness=2]-> HTTP #teal
+  putEntity -[thickness=2]-> HTTP #red
+  postEntity -[thickness=2]-> HTTP #yellow
+
+
+
+component "ZeebeHandler\n\n\n" as ZeebeHandler $edit #E8F5E9   {
+        card statusFilter
+        portout start #red
+        portout task  #orange
+        statusFilter .> start #red
+        statusFilter .> task #orange
+        start -[hidden].- task
+'statusFilter ----------right[hidden]------------- lol
+}
+[Mapper] -[thickness=2]> statusFilter #orange
+   component WorkerHandler $get #E8F5E9 {
+        portin GET #008080
+        card processFilter
+        card schemaFilter
+        portout  toData #green
+        portout  toSchema #teal
+   }
+   Mapper --> GET #1B5E20
+   GET .> processFilter #1B5E20
+   [CamundaHandler] $get #E8F5E9
+   processFilter -[thickness=2]-> [CamundaHandler]  #C8E6C9
+   schemaFilter <. processFilter #008080
+   schemaFilter .> toData  #green
+   schemaFilter .> toSchema #teal
+
+}
+
+note top of Mapper: Маппер сортирует\nзапросы по обработчикам
+note top of statusFilter: Фильтры  проводять обработку запросов:\n - ограничивают частоту, логируют\n - модифицируют запрос (заголовки и тело)\n - модифицируют ответ (на обратном пути)
+
+frame Camunda {
+    "//**gRPC**//" - [Zeebe]
+    component Zeebe <<service>> $edit #FFD2BB   {
+        card begin
+        card  new
+        card execute
+        card update
+        begin => new #red
+         new =>  execute
+         execute =>  update #orange
+    }
+    start -[thickness=2]-> begin #red
+    task -[thickness=2]-> execute #orange
+
+    component Operate <<service>> $get #FFD2BB
+    () "//**REST**//" as REST
+    REST - Operate
+    CamundaHandler -[thickness=2]-> REST #C8E6C9
+
+}
+note top of execute: Поскольку идемпотентности тут не получится,\nи создание и изменение будет через POST
+component Worker {
+    frame "Слой доступа к данным сервиса" as data #FF6347  {
+        portin  getData $get #green
+        portin  postData $edit  #red
+        portin  putData $edit  #orange
+        new -[thickness=2]-> postData #red
+        update -[thickness=2]-> putData #orange
+        toData -[thickness=2]-> getData #green
+        getData -[hidden]----------- postData
+        postData -[hidden]----- putData
+    }
+    frame  "Слой доступа к мета-данным сервиса" $get #FF6347 {
+        portin  getMeta #teal
+        portin  postMeta
+        portin  putMeta
+        toSchema -[thickness=2]-> getMeta  #teal
+    }
+
+}
+'remove $get
+'remove @unlinked
+
+@enduml
