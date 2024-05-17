@@ -16,14 +16,14 @@ srv = component Service  {
     technology "Spring Boot Service"
     tags Java Product
 }
-rest -> srv "@Autowire" "" "command, sync, aux"
+rest -> srv "" "@Autowire" "command, sync, aux"
 job = component Worker {
     description "Подписчик"
     technology "Zeebe Spring Client"
     tags Java Pillar
     
-    -> bpm "Получает задачи" "long polling, gRPC" "async, request"
 }
+bpm -> job  Задачи "long polling, gRPC" "async, request, major"
 repo = component Repository {
     description "Слой хранения"
     technology "Spring Data JPA"
@@ -44,16 +44,11 @@ logback = component Logback {
 }
 yPortal.filebeat -> logback  "Выгрузка логов" "Docker Discovery" "vague, collect, aux, async"
 
-sleuth = component Sleuth {
-    description "Распределенная трассировка"
-    technology "Spring Cloud Sleuth"
-    tags Java "Spring Cloud" infra Tool
-    -> yPortal.zipkin "Сбор спанов" "HTTP" "aux, async"
-}
-
 actuator = component Micrometer {
     description "Эндпоинт метрик"
     technology "Spring Boot Actuator"
     tags Java "Spring Boot" infra Tool
+    -> yPortal.zipkin "Сбор спанов" "HTTP" "aux, async"
 }
 yPortal.prometheus -> actuator "Агрегация метрик" "HTTP GET" "collect, safe, aux"
+

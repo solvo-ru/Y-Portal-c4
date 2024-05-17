@@ -97,25 +97,26 @@ workspace extends ../../solvo-landscape.dsl {
                     }
                     -> broker "запуск подпроцессов" "Call Activity" "async, major, vague"
                     Group "Процесс 'Заявка'" { 
-                        valid = component validate "" "" "unreal"
-                        putR = component storeRequest "" "" "unreal"
-                        postR = component updateRequest "" "" "unreal"
-                        noteR  = component noteRequest "" "" "unreal"
-                        choose = component choose "" "" "unreal"
-                        sendR = component sendResult "" "" "unreal"
+                        valid = component "проверить данные" "" "" "unreal, camunda"
+                        putR = component "сохранить заявку" "" "" "unreal, camunda"
+                        postR = component "обновить заявку" "" "" "unreal, camunda"
+                        noteR  = component "отправить уведомления" "" "" "unreal, camunda"
+                        choose = component "выбрать исполнителя" "" "" "unreal, camunda"
+                        sendR = component "отправить результаты" "" "" "unreal, camunda"
                     }
                     Group  "Процесс 'Предложение'" {
                        // find = component observe "" "" "unreal"
-                        putO = component storeOffer "" "" "unreal"
-                        sendO = component sendOffer "" "" "unreal"
-                        postO = component updateOffer "" "" "unreal"
+                        putO = component "сохранить предложение" "" "" "unreal, camunda"
+                        sendO = component "отправить предложение" "" "" "unreal, camunda"
+                        postO = component "обновить результатами" "" "" "unreal, camunda"
                     }
                     valid -> putR "данные ОК" "" "sync, vague"
                     putR -> postR "активировать" "" "sync, vague"
                     postR -> noteR "оповестить" "" "sync, vague"
                     noteR -> choose "собрать предложения" "" "sync, vague"
+
                     choose -> sendR "выбран исполнитель" "" "sync, vague"
-                    sendR -> postO "сигнал" "" "sync, message, leap"
+                    sendR -> postO "сигнал" "" "async, message, leap"
                                         
                     putO -> sendO "" "" "sync, vague"
                     sendO -> postO "" "" "sync, vague"
@@ -160,9 +161,11 @@ workspace extends ../../solvo-landscape.dsl {
             broker -> connectors "использует" "gRPC" "async, major, request"
             connectors -> yms  "Автовизит" "REST" "sync, aux, message"
             broker -> elastic "хранит данные" "HTTP" "safe, sync, major"
-            optimize -> gateway "транслирует запрос" "gRPC" "sync, aux, request"
-            tasklist -> gateway "транслирует запрос" "gRPC" "sync, major, command"
-            operate -> gateway "транслирует запрос" "gRPC" "sync, aux, request"            
+            tasklist -> elastic "обращается к данным" "HTTP" "request, sync, aux"
+            operate -> elastic "обращается к данным" "HTTP" "request, sync, aux"
+            optimize -> elastic "обращается к данным" "gRPC" "request,sync, aux"
+           // tasklist -> gateway "транслирует запрос" "gRPC" "sync, major, command"
+           // operate -> gateway "транслирует запрос" "gRPC" "sync, aux, request"
             modeler -> gateway "deploy" "gRPC" "sync, major, request"
             yPortal -> gateway "Запуск процессов" "gRPC" "async, major, leap, command"
             yPortal -> tasklist "Выполнение задач" "HTTP" "sync, major, leap, command"
@@ -195,19 +198,19 @@ workspace extends ../../solvo-landscape.dsl {
                 tags unreal
             }
         }
-        valid -> ref "проверить ссылки в json" "" "collect,  major, command"
-        putR -> request "сохранить новую" "" "collect, major, command"
-        postR -> request "обновить статус" "" "collect,major, command"
-        putO -> offer "сохранить новое" "" "collect,major, command"
-        postO -> offer "обновить статус" "" "collect,major, command"
-        note -> choose "сбор предложений" "" "sync, message, leap"
+        valid -> ref "" "" "collect,  major, command"
+        putR -> request "" "" "collect, major, command"
+        postR -> request "" "" "collect,major, command"
+        putO -> offer "" "" "collect,major, command"
+        postO -> offer "" "" "collect,major, command"
+        note -> choose "" "" "async, message, leap"
         sendO -> note "на рассмотрение" "" "collect,major, command"
+        noteR -> note "" "" "collect, major, command"
 
-        frontL  -> choose "сделать выбор" "" "sync, request"
         
         frontL -> valid "Создать заявку" "" "major, sync, request"
         frontF -> putO "Создать предложение" "" "major, sync, request"
-
+        frontL  -> choose "сделать выбор" "" "sync, request"
         production = deploymentEnvironment "Production" {
             kuberNode1 = deploymentGroup kuberNode1
             kuberNode2 = deploymentGroup kuberNode2

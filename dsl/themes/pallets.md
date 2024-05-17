@@ -1,3 +1,69 @@
+!const BLUE_ #0D47A1
+//Темный фон (контейнер)
+!const BLUE #1565C0
+//MESSAGE
+!const BLUE- #BBDEFB
+//Светлый фон (система)
+!const BLUE0 #E3F2FD
+
+//
+//----------------------
+//Границы, шрифт на светлом фоне
+!const GREEN_ #1B5E20
+//Темный фон (контейнер)
+!const GREEN #2E7D32
+//REQUEST
+!const GREEN- #C8E6C9
+//Светлый фон (система)
+!const GREEN0 #E8F5E9
+
+//Aux Tool
+//----------------------
+//Границы, шрифт на светлом фоне
+!const GREY_ #424242
+//Темный фон (контейнер)
+!const GREY #616161
+//VAGUE
+!const GREY- #D3D3D3
+//Светлый фон (система)
+!const GREY0 #F5F5F5
+
+//Kernel Product
+//----------------------
+//Границы, шрифт на светлом фоне
+!const PURPLE_ #4A148C
+//Темный фон (контейнер)
+!const PURPLE #512DA8
+//Средний фон (компонент)
+!const PURPLE- #D1C4E9
+//Светлый фон (система)
+!const PURPLE0 #E1BEE7
+
+//Aux Product
+//----------------------
+//Границы, шрифт на светлом фоне
+!const TEAL_ #008080
+//Темный фон (контейнер)
+!const TEAL #5F9EA0
+//Средний фон (компонент)
+!const TEAL- #B0E0E6
+//CHECK
+!const TEAL0 #F0FFFF
+
+//Accent
+//----------------------
+//Границы и шрифт групп
+!const RED_ #B71C1C
+//
+!const RED #C62828
+//
+!const RED- #FFB6C1
+//COMMAND
+!const RED0 #FF6347
+
+//SAFE
+!const GOLD #DAA520
+
 # Pallets
 
 ## Color Palette 1: 

@@ -107,11 +107,11 @@ workspace "Экосистема продуктов Solvo" {
                 "Availability" "Отказоустойчивость  репликацией"
             }
         }
-        yms -> queue "Текущие интеграции" "" "leap, vague, major"
-        wms -> queue "Текущие интеграции"  "" "leap, vague, major"
-        tos -> queue "Текущие интеграции"  "" "leap, vague, major"
+        yms -> queue "" "" "leap, vague, major"
+        wms -> queue ""  "" "leap, vague, major"
+        tos -> queue ""  "" "leap, vague, major"
 
-        yportal -> bpm "Запуск процессов, выполнение задач" "HTTPS/gRPC" "command, sync, major"
+        yportal -> bpm "Запуск бизнес-процессов" "HTTPS/gRPC" "command, sync, major"
         yportal -> iam "Аутентификация и авторизация" "HTTPS JWT" "check, sync, major"
         yportal -> s3 "Файлы" "HTTP" "major, sync, safe"
         queue -> mdm "Синхронизаця" "" "leap, vague"

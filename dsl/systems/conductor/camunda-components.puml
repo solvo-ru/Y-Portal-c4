@@ -1,0 +1,47 @@
+@startuml
+skinparam componentStyle rectangle
+
+node "Kubernetes Cluster" {
+    frame Namespace {
+        cloud "HTTP/S Ingress" as ing  #5468ff
+        folder "Authentication / Authorization" {
+          [Keycloak] as key
+           database PostgreSQL
+           key -right-> PostgreSQL
+[Identity] #fc5806
+          ing -down-> [Identity]
+        }
+        folder "Workflow Engine" {
+ [Zeebe Gateway] #fc5806
+ [Zeebe Brokers] #fc5806
+
+ [Zeebe Gateway]-down-> [Zeebe Brokers]
+}
+
+         cloud "gRPC Ingress" #5468ff
+
+        database Elasticsearch as elk
+        [Operate] as oper #fc5806
+        [Tasklist] as task #fc5806
+        [Optimize] as opt #fc5806
+        [Connectors] as con #fc5806
+        task -[hidden] opt
+        opt -[hidden] oper
+    }
+}
+(REST API) <-down-> ing
+[Воркер] <-down-> "gRPC Ingress"
+"gRPC Ingress" -down-> [Zeebe Gateway]
+ing -down-> key
+ing -down-> con
+ing -down-> oper
+con -down-> oper
+ing -down-> task
+ing -down-> opt
+con -right-> [Zeebe Gateway]
+[Zeebe Brokers]-down->elk
+oper <-right-> elk
+task <-right-> elk
+opt <-right-> elk
+
+@enduml

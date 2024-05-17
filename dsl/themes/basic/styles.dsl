@@ -67,7 +67,7 @@
 //SAFE
 !const GOLD #DAA520
 
-//!const CAMUNDA  #FC5D0D
+!const CAMUNDA  #FC5D0D
 //!const SPRING  #6EB23F
 //!const GREEN  #6EB23F
 //!const FONT #003557
@@ -96,17 +96,17 @@ workspace "Базовые стили" {
                 routing Direct
                 fontSize 35
                 width 300
-                color ${GREEN-}
+                color ${GREY_}
             }
 
             //По характеру
             relationship sync {
-                //Синхронное 
+                //Синхронное
                 style Solid
             }
 
             relationship async {
-                //Acинхронное 
+                //Acинхронное
                 style Dashed
             }
 
@@ -117,14 +117,18 @@ workspace "Базовые стили" {
             }
 
             relationship collect {
-                //Агрегирующее 
+                //Агрегирующее
                 routing Orthogonal
             }
 
-            //По вкладу 
+            //По вкладу
             relationship major {
                 //Основной бизнес-процесс
                 thickness 4
+            }
+            relationship super {
+                //Основной бизнес-процесс
+                thickness 8
             }
 
             relationship aux {
@@ -232,6 +236,12 @@ workspace "Базовые стили" {
             //Внешние элементы
             element External {
                 stroke ${BLUE_}
+            }
+
+            element camunda {
+                background ${CAMUNDA}
+                shape RoundedBox
+                fontSize 20
             }
 
             element "External [system]" {
@@ -404,7 +414,7 @@ workspace "Базовые стили" {
             }
 
             element Redis {
-                icon icons/redis.png
+                icon icons/redis.svg
             }
 
             element Java {

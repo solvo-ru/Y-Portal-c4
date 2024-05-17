@@ -4,7 +4,7 @@ mdm = softwareSystem "MDM" "Система управления справочн
     }
 }
 
-erp = softwareSystem "ERP" "Система планирования ресурсов предприятия" "external" {
+erp = softwareSystem ERP "Система планирования ресурсов предприятия" "external" {
     perspectives {
         "Integration" "Двусторонний обмен"
     }

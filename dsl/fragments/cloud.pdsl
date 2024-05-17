@@ -1,5 +1,4 @@
-elastic = container "Аналитическое хранилище" {
-    technology Elasticsearch
+elastic = container Elastic {
     tags ELK infra db 
     perspectives {
         "Security" "Ролевая модель доступа"
@@ -8,7 +7,7 @@ elastic = container "Аналитическое хранилище" {
         "Availability" "Высокая доступность  репликацией"
     }
 }
-consul = container "Consul" "Сервис конфигурации и обнаружения" " " {    
+consul = container Consul "Сервис конфигурации и обнаружения"  {
     properties {
         wiki.document.id yA5mgpWRBe           
     }
@@ -21,12 +20,11 @@ consul = container "Consul" "Сервис конфигурации и обнар
     }
 }
 
-logstash = container "Обработчик логов" {
+logstash = container  Logstash {
     properties {
         wiki.document.id uTsNMeTTuS           
-    }   
-
-    technology Logstash
+    }
+    description "Обработчик логов"
     tags ELK infra Tool
     perspectives {
         "Security" "Шифрование данных"
@@ -34,7 +32,7 @@ logstash = container "Обработчик логов" {
         "Scalability" "Горизонтально масштабируемое"
         "Availability" "Отказоустойчивость кластеризацией"
     }
-    -> elastic "push logs" "" "aux"
+    -> elastic "хранит логи" "" "aux"
 }
 filebeat = container Filebeat {
     //technology "Filebeat"
@@ -46,11 +44,11 @@ filebeat = container Filebeat {
         "Scalability" "Эластичная масштабируемость"
         "Availability" "Высокая доступность с отказоустойчивостью"
     }
-    -> logstash "push logs" "" "aux, async"
+    -> logstash "отдает архив логов" "" "aux, async"
 }
 
 zipkin = container "Open Zipkin" {
-    tags infra Zipkin Tool
+    tags infra Zipkin Tool future
     description "Cистема распределенной трассировки"
     properties {
         wiki.document.id USTBrB5d2Z
@@ -64,7 +62,7 @@ zipkin = container "Open Zipkin" {
     }
     -> elastic "Хранение трейсов" "HTTP" "safe, sync, aux"
 }
-git2consul = container "git2consul" "Синхронизация конфигураций из Git в Consul" " " {
+git2consul = container Git2Consul "Синхронизация конфигураций из Git в Consul" " " {
     tags infra future "Spring Cloud" Tool
     perspectives {
         "Security" "Зашифрованное взаимодействие"
@@ -104,5 +102,5 @@ kibana = container Kibana "Система визуализации и управ
         "Scalability" "Эластичная масштабируемость"
         "Availability" "Высокая доступность репликацией"
     }
-    -> elastic "get logs" "HTTP" "aux, sync"
+    -> elastic "Обрещается к данным" "HTTP" "aux, sync"
 }

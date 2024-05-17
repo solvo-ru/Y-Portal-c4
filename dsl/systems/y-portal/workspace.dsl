@@ -3,7 +3,7 @@ workspace extends ../../solvo-landscape.dsl {
     name "Системная Архитектура Портала Перевозчика"
     description "[Camunda Edition]"
     properties {
-         wiki.document.id GKzQMcy43s
+        wiki.document.id GKzQMcy43s
 
     }
     !impliedRelationships true
@@ -20,25 +20,26 @@ workspace extends ../../solvo-landscape.dsl {
 
     model {
 
-        router = person "Логист" { 
+        router = person "Логист" {
             -> bpm "Выполняет UserTask" "Zeebe" "leap, command, major"
         }
         dispatcher = person "Экспедитор" "" {
             -> bpm "Выполняет UserTask" "Zeebe" "leap, command, major"
         }
-        transport = person "Водитель" "" {
+        transport = person Водитель {
+            tags doubt
             -> bpm "Выполняет UserTask" "Zeebe" "leap, message, major"
         }
-       
+
         !extend yPortal {
             description "Система управления заявками на перевозку"
             properties {
-                        "wiki.document.id" Sl14kRICxJ
-                    }
+                "wiki.document.id" Sl14kRICxJ
+            }
 
             Group FrontEnd {
                 web = container "Web-портал" "Доступ ко функциям системы через браузер" {
-                    
+
                     tags browser Solvo Product
                     perspectives {
                         "Security" "TLS/SSL шифрование"
@@ -47,23 +48,23 @@ workspace extends ../../solvo-landscape.dsl {
                         "Availability" "Высокая доступность с отказоустойчивостью"
                         "Regulatory/Compliance" "Соответствует требованиям GDPR"
                     }
-                    -> bpm "Запуск процессов, Выполнение userTask" "Gateway, Zeebe" "leap, command, major"
+                    //-> bpm "Запуск процессов, Выполнение userTask" "Gateway, Zeebe" "leap, command, major"
                 }
 
                 app = container "Carrier App" "Мобильное приложение перевозчиков" {
-                    tags mobile Solvo Addon
+                    tags mobile Solvo Addon future
                     perspectives {
                         "Security" "Биометрическая аутентификация"
                         "Scalability" "Поддержка большого количества одновременных пользователей"
                         "Availability" "Синхронизация с сервером при наличии подключения"
                     }
-                    -> bpm "Запуск процессов, Выполнение userTask" "Gateway, Zeebe" "leap, message, major"
+                    //-> bpm "Запуск процессов, Выполнение userTask" "Gateway, Zeebe" "leap, message, major"
                 }
 
                 api = container "Public API" "Публичный API Портала" {
-                    tags Addon-cont Addon
+                    tags Addon future
                     perspectives {
-                        "Security" "OAuth 2.0" 
+                        "Security" "OAuth 2.0"
                         "Performance" "Низкая задержка"
                         "Scalability" "Версионирование API"
                         "Availability" "99.99% времени доступности"
@@ -72,9 +73,9 @@ workspace extends ../../solvo-landscape.dsl {
             }
 
             apiGateway = container "API Gateway" {
-                technology "Spring Cloud Gateway" 
+                technology "Spring Cloud Gateway"
                 description "Шлюз API для маршрутизации запросов"
-                tags bus "Spring Cloud" Tool 
+                tags bus "Spring Cloud" Tool
                 perspectives {
                     "Security" "Защита от DDoS атак"
                     "Performance" "Кэширование для часто используемых эндпоинтов"
@@ -82,26 +83,30 @@ workspace extends ../../solvo-landscape.dsl {
                     "Availability" "Активно-активная конфигурация для отказоустойчивости"
                 }
             }
+            redis = container Redis {
+                technology "KV-storage"
+                description "Хранение сессий пользователей"
+                tags Redis db Tool
+            }
+            apiGateway -> redis "Кэш" "" "aux, safe, sync"
+
             Group Cloud {
-                !include ../../fragments/cloud.pdsl      
-                 
+                !include ../../fragments/cloud.pdsl
+
             }
             apiGateway -> yPortal.consul "Регистрация, конфигурация" "DNS/HTTP" "aux, collect, safe"
             bpm -> yPortal.consul "Регистрация, конфигурация" "DNS/HTTP" "aux, collect, safe"
 
-
-
             Group BackEnd {
-
-                requestWorker = container "Request worker" {
-                   // !docs docs/request
+                requestWorker = container Requests {
+                    // !docs docs/request
                     properties {
                         wiki.document.id 6V4RDZuJnJ
                     }
-                    description "Сервис заявок на перевозку" 
-                    !include ../../fragments/worker-dummy.pdsl  
+                    description "Сервис заявок на перевозку"
+                    !include ../../fragments/worker-dummy.pdsl
                 }
-                trDb = container "Request Database" {
+                trDb = container "Request DB" {
                     technology "PostreSQL 16"
                     tags db Postgres
                     request = component REQUEST "" Table "table"
@@ -110,56 +115,64 @@ workspace extends ../../solvo-landscape.dsl {
                 }
                 requestWorker.repo -> trDb "" "JDBC" "safe, sync, major"
 
-                offerWorker = container "Offer worker" { 
+                offerWorker = container Offers {
                     description "Сервис предложений"
                     !include ../../fragments/worker-dummy.pdsl
-                    
+
                 }
-                offerDb = container "Offer Database" {
+                offerDb = container "OfferDB" {
                     technology "PostreSQL 16"
-                    tags db Postgres 
+                    tags db Postgres
                     offer = component OFFER "" Table "table"
                     offerSchema = component OFFER_SCHEMA "" Table "table"
                     offer -> offerSchema "schemaId" "FK" "vague"
                 }
                 offerWorker.repo -> offerDb "" "JDBC" "safe, sync, major"
 
-                actorWorker = container "Actor" {                    
+                actorWorker = container "Actor" {
                     description "Сервис участников процесса"
-                    !include ../../fragments/worker-dummy.pdsl     
-                    tags doubt            
+                    !include ../../fragments/worker-dummy.pdsl
+                    tags doubt
                 }
 
                 roleWorker = container "Role" {
                     !include ../../fragments/worker-dummy.pdsl
-                    tags doubt 
+                    tags doubt
                 }
 
                 statusWorker = container Status {
+                    description "Сервис статусов"
                     !include ../../fragments/worker-dummy.pdsl
                 }
+                statusDb = container "StatusDB" {
+                    technology "PostreSQL 16"
+                    tags db Postgres
+                }
+                statusWorker.repo -> statusDb "" "JDBC" "safe, sync, major"
 
-                commentsWorker = container commentsWorker {
+                commentsWorker = container Comments {
                     !include ../../fragments/worker-dummy.pdsl
                     tags future Addon
                 }
 
-                messageWorker = container "Notifier" {
+                messageWorker = container Notifier {
+                    description "Сервис уведомлений"
                     !include ../../fragments/worker-dummy.pdsl
                     address = component addresser
                     templater = component templater
                     sender = component sender
                     task = component tasker
-                    -> app "Оповещения" "SSE" "async, message, major" 
+                    -> app "Оповещения" "SSE" "async, message, aux"
                 }
 
-                referenceWorker = container "Reference" {
+                referenceWorker = container Reference {
+                    description "Сервис справочников"
                     !include ../../fragments/worker-dummy.pdsl
                 }
-                refDb = container "Master Data DB" {
+                refDb = container "MD DB" {
                     technology "PostreSQL 16"
-                    tags db Postgres 
-                   
+                    tags db Postgres
+
                     reference = component REFERENCE "Элементы справочников" Table "table"
                     referenceSchema = component REFERENCE_SCHEMA "Схемы справочников" Table "table"
                     registry = component REGISTRY "Справочники и списки" Table "table"
@@ -171,8 +184,8 @@ workspace extends ../../solvo-landscape.dsl {
                 referenceWorker.repo -> refDb "" "JDBC" "safe, sync, major"
 
                 shipmentWorker = container "Shipment worker" {
-                    !include ../../fragments/worker-dummy.pdsl  
-                    tags future
+                    !include ../../fragments/worker-dummy.pdsl
+                    tags doubt
                 }
 
 
@@ -193,28 +206,29 @@ workspace extends ../../solvo-landscape.dsl {
 
 
                 //postgres = container "PostgreSQL" "БД для хранения постоянных данных" "PostgreSQL 16"
-                //redis = container "Redis" "In-memory KV-хранилище" "Redis"
+                //
 
 
             }
 
             !script ../../scripts/Tagger.groovy {
             }
+
         }
 
-        development = deploymentEnvironment "Back-End Development" { 
-            deploymentNode "ПК разработчика" "" { 
+        development = deploymentEnvironment "Back-End Development" {
+            deploymentNode "ПК разработчика" "" {
                 deploymentNode "Docker Engine" {
-                    deploymentNode "Воркеры" " " "Docker Compose"{
-                        containerInstance yPortal.requestWorker                     
-                        containerInstance yPortal.offerWorker 
-                        containerInstance yPortal.messageWorker 
-                        containerInstance yPortal.referenceWorker 
+                    deploymentNode "Воркеры" " " "Docker Compose" {
+                        containerInstance yPortal.requestWorker
+                        containerInstance yPortal.offerWorker
+                        containerInstance yPortal.messageWorker
+                        containerInstance yPortal.referenceWorker
                         containerInstance yPortal.shipmentWorker
                     }
-                    deploymentNode "Cloud" "Docker-контейнер" "Ubuntu 22.10"{
-                        containerInstance yPortal.consul 
-                        containerInstance yPortal.apiGateway 
+                    deploymentNode "Cloud" "Docker-контейнер" "Ubuntu 22.10" {
+                        containerInstance yPortal.consul
+                        containerInstance yPortal.apiGateway
                     }
                 }
             }
@@ -225,9 +239,9 @@ workspace extends ../../solvo-landscape.dsl {
 
                     }
                     deploymentNode "Front" "" "Docker Compose" {
-                        containerInstance yPortal.web     
+                        containerInstance yPortal.web
                     }
-                    infrastructureNode "NGinx" 
+                    infrastructureNode "NGinx"
                 }
             }
         }
@@ -247,79 +261,88 @@ workspace extends ../../solvo-landscape.dsl {
             //     }
             // }
         }
-        yPortal.apiGateway -> bpm "Запуск процессов, выполнение задач" "gRPC" "sync, major, command"
+        yPortal.apiGateway -> bpm "Передача в БП" "gRPC" "sync, major, command, super"
         yPortal.apiGateway -> s3 "Хранение файлов" "HTTP" "safe, sync, aux"
-        // apiGateway -> tasklist "управление процессами" "HTTP REST/JSON" "HTTP"
-        // apiGateway -> operate "техподдержка" "HTTP REST/JSON" "HTTP"
-        // apiGateway -> optimize "администрирование" "HTTP REST/JSON" "HTTP"
-        // apiGateway -> keycloak "проверяет токен" "JWT" "HTTP"
-        router -> yPortal.web "Управляет заявками, отслеживает перевозки" "HTTPS" "sync, major, request"
-        dispatcher -> yPortal.app "Подтверждает перевозку" "HTTPS" "sync, aux, request"
+        router -> yPortal.web "Управляет заявками" "HTTPS" "sync, major, request"
+        dispatcher -> yPortal.app "Подтверждает перевозку" "HTTPS" "sync, request"
         dispatcher -> yPortal.web "Вносит предложения" "HTTPS" "sync, major, request"
-        transport -> yPortal.app  "Отчитывается о перевозке" "HTTPS" "sync, aux, message"
+        transport -> yPortal.app "Отчитывается о перевозке" "HTTPS" "sync, aux, message"
 
-        yPortal.web -> yPortal.apiGateway "Отправляет запрос" "HTTPS REST/JSON NGINX" "leap, sync, request, major"
-        yPortal.app -> yPortal.apiGateway "Отправляет запрос" "HTTPS REST/JSON NGINX" "leap, sync, request, aux"
-        //publicApi -> apiGateway "Отправляет запрос"
-        
-        yPortal.web ->  iam "Получение токена" "JWT" "check, sync, major, leap"
-        yPortal.app ->  iam "Получение токена" "JWT" "check, sync, major, leap"
+        yPortal.web -> yPortal.apiGateway Запрос "HTTPS REST/JSON NGINX" " sync, request, major"
+        yPortal.app -> yPortal.apiGateway Запрос "HTTPS REST/JSON NGINX" " sync, request"
+        yPortal.api -> yPortal.apiGateway "API call" "HTTPS REST/JSON NGINX" " sync, request"
+        yPortal.apiGateway -> s3 "Файлы" "HTTP" "major, sync, safe"
+        yPortal.web -> iam "Получение токена" "JWT" "check, sync, major, leap"
+        yPortal.app -> iam "Получение токена" "JWT" "check, sync, major, leap"
         yPortal.apiGateway -> iam "Проверка токена" "JWT" "check, sync, major"
         bpm -> yms "Создает автовизит" "" "leap, vague, major"
-        yPortal.web -> tms "Отслеживание транспорта" "HTTPS" "leap, vague, aux"
 
-        //iam -> roleWorker "get roles" "HTTP REST/JSON" "HTTP, GET, leap"
-       // messageWorker -> ext "notify" "async"
-         
-         
-        
+
+
     }
-    
+    !script groovy {
+        import  com.structurizr.view.ViewSet
+        ViewSet views =        workspace.views
+        views.systemLandscapeViews=null
+    }
     views {
         systemContext yPortal yp-context "Системный контекст Портала Перевозчика" {
             include *
             include queue->
-            exclude relationship.tag==leap
             exclude "element.tag==db"
         }
 
         container yPortal yp-structure "Структура Портала Перевозчика" {
-            include * 
-            exclude relationship.tag==leap 
-            // exclude "element.tag==external && element.tag!=abstract"
+            include *
+            include yms
+            exclude relationship.tag==leap
+            exclude relationship.tag==aux
+            exclude "element.tag==external"
             exclude "element.tag==infra"
             exclude "element.tag==db"
-            exclude "element.tag==future"
+            //exclude "element.tag==future"
             exclude "element.tag==doubt"
         }
 
 
-        container yPortal infra-structure "Инфраструктура Портала Перевозчика" {
+        container yPortal infra-structure "Портала Перевозчика целиком" {
             include element.parent==yPortal
             include element==bpm
-            exclude relationship.tag==leap 
-            exclude element==yPortal.app
+            include element==iam
+            include element==s3
+            exclude *->*
             exclude element==yPortal.api
-            exclude element==yPortal.web
             exclude "element.tag==external && element.tag!=abstract"
-           
+
             //exclude "element.tag==db"
-            exclude "element.tag==future"
+            //include element==yPortal.elastic
+            //exclude "element.tag==future"
             exclude "element.tag==doubt"
+            //exclude yPortal.apiGateway->*
+            //exclude bpm->*
+            //include *->yPortal.consul
         }
 
 
-         deployment yPortal "Back-End Development" {
-             include *
-         }
+        deployment yPortal "Back-End Development" {
+            include *
+        }
+
         component yPortal.requestWorker request-structure "Компоненты микросервиса 'Заявка на перевозку'" {
             title "Заявка на перевозку"
-            include *
+              include *
             exclude bpm->*
         }
 
+        component yPortal.requestWorker request-infra-structure "Компоненты инфраструктуры на примере микросервиса 'Заявка на перевозку'" {
+            title "Spring Cloud"
+            include *
+            include "element.tag==infra && element.parent==yPortal"
+            exclude element==bpm
+        }
+
         component yPortal.refDb api-to-db "Схема ветвления запросов на примере сервиса Reference" {
-            title "Потоки данных" 
+            title "Потоки данных"
             include element==yPortal.web
             include element==yPortal.apiGateway
             include element==bpm
@@ -330,27 +353,27 @@ workspace extends ../../solvo-landscape.dsl {
         }
 
 
-        dynamic yPortal yp-bidding "Процесс заявки на перевозку" {
-            router -> yPortal.web "Создает заявку в web-форме" ""
-            yPortal.web -> yPortal.apiGateway "Вызывает метод API"
-            yPortal.apiGateway -> bpm "Маршрутизация на запуск процесса"
-            bpm -> yPortal.requestWorker "Сохранить заявку"
-            yPortal.requestWorker -> bpm "Вернуть ID"
-            router -> bpm "Оформить заявку"
-            bpm -> yPortal.requestWorker "Обновить заявку"
-            yPortal.requestWorker -> bpm "ОК"
-            bpm -> yPortal.messageWorker "Уведомление 'Новая заявка'"
-            yPortal.messageWorker -> yPortal.app  "'Новая заявка'"
-            yPortal.app -> dispatcher "Получает сообщение"
-            dispatcher -> yPortal.web "Заполняет форму предложения"
-            yPortal.web -> bpm "Запускает процесс 'Предложение'"
-            bpm -> yPortal.offerWorker "Сохранить предложение"
-            yPortal.offerWorker -> bpm "Вернуть ID"
-            //bpm -> bpm "Отправить сообщение в процесс заявки" 
-            router -> bpm "Выбрать победителя"
-            dispatcher -> bpm "Подтвердить выполнение"
-            bpm -> yms "Создать автовизит"
-        }
+        // dynamic yPortal yp-bidding "Процесс заявки на перевозку" {
+        //     router -> yPortal.web "Создает заявку в web-форме" ""
+        //     yPortal.web -> yPortal.apiGateway "Вызывает метод API"
+        //     yPortal.apiGateway -> bpm "Маршрутизация на запуск процесса"
+        //     bpm -> yPortal.requestWorker "Сохранить заявку"
+        //     yPortal.requestWorker -> bpm "Вернуть ID"
+        //     router -> bpm "Оформить заявку"
+        //     bpm -> yPortal.requestWorker "Обновить заявку"
+        //     yPortal.requestWorker -> bpm "ОК"
+        //     bpm -> yPortal.messageWorker "Уведомление 'Новая заявка'"
+        //     yPortal.messageWorker -> yPortal.app  "'Новая заявка'"
+        //     yPortal.app -> dispatcher "Получает сообщение"
+        //     dispatcher -> yPortal.web "Заполняет форму предложения"
+        //     yPortal.web -> bpm "Запускает процесс 'Предложение'"
+        //     bpm -> yPortal.offerWorker "Сохранить предложение"
+        //     yPortal.offerWorker -> bpm "Вернуть ID"
+        //     //bpm -> bpm "Отправить сообщение в процесс заявки" 
+        //     router -> bpm "Выбрать победителя"
+        //     dispatcher -> bpm "Подтвердить выполнение"
+        //     bpm -> yms "Создать автовизит"
+        // }
 
 
         // // Dynamic diagram for Transporting Workflow
@@ -363,4 +386,5 @@ workspace extends ../../solvo-landscape.dsl {
         // }
 
     }
+
 }

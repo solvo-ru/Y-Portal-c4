@@ -60,7 +60,10 @@ abstract DOCUMENT <<Body>> {
 }
 DOCUMENT -up-|> RECORD
 DOCUMENT ..|> Body
-namespace "Простые справочники" as simple {
+ENTRY  .[hidden] DOCUMENT
+
+frame "Простые справочники" as simple {
+
 abstract LIST <<Type>> {
     UUID id
     String title
@@ -71,7 +74,7 @@ abstract ::ITEM <<Typed>>{
     List type
 }
 }
-'note right: Элемент простого списка
+note bottom of simple: Тип транспорта, Роли контрагента
 ::ITEM -up-|> ENTRY
 ::ITEM ..|> Typed
 
@@ -80,9 +83,7 @@ LIST -up-|> ENTRY
 ::ITEM -left-* LIST
 
 
-
-
-namespace "Выделенные сущности" as single {
+frame "Доменные сущности" as single {
     abstract SCHEMA<? extends FORM> <<Meta>> <<Type>> <<Temporal>>{
         UUID id
         JSON schema
@@ -96,6 +97,8 @@ namespace "Выделенные сущности" as single {
         String displayString
     }
 }
+note right of FORM: Заявки, Предложения
+
 SCHEMA ..|> Type
 SCHEMA ..|> Meta
 SCHEMA -up-|> DOCUMENT
@@ -103,7 +106,7 @@ FORM ..|> Typed
 FORM ..|> Displayable
 FORM -up-|>  DOCUMENT
 FORM -left-* SCHEMA
-
+frame "Основные справочники (мастер-данные)" as mdm {
 abstract CATALOGUE {
     UUID id
     String title
@@ -122,17 +125,13 @@ abstract ::REFERENCE {
     ....
     String displayString
 }
+}
+note left of ::REFERENCE: Контрагенты, Локации, ...
 CATALOGUE_SCHEMA -up-|> SCHEMA
-CATALOGUE_SCHEMA -left-* CATALOGUE
-
-
-::REFERENCE -left-* CATALOGUE_SCHEMA
+CATALOGUE *-right- CATALOGUE_SCHEMA
+CATALOGUE_SCHEMA *-right- ::REFERENCE
 ::REFERENCE -up-|> FORM
 ::REFERENCE ..|> Body
-
-
-
-
 
 @enduml
 

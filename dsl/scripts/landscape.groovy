@@ -15,10 +15,7 @@ workspaces.each { subWorkspace ->
                 .setUrl("{workspace:${subWorkspace.id}}/diagrams")
     }
 }
-System.out.println(workspace.configuration.scope);
-if (workspace.configuration.scope == WorkspaceScope.SoftwareSystem) {
-    return
-}
+
 def view = workspace.views.createSystemLandscapeView("solvo-products", "Экосистема продуктов Solvo");
 view.addAllElements();
 
