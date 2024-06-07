@@ -1,137 +1,114 @@
 @startuml
 hide empty members
-interface Identifiable {
-  getId()
+hide circle
+set separator none
+skinparam Class {
+ FontSize 20
+ FontSize<<interface>> 10
+ AttributeFontSize<<interface>> 10
+ StereotypeFontSize<<interface>> 5
+ LineStyle<<interface>> dashed
 }
-'note left: //Идентифицируемость//\n(однозначно находится системой)
-interface Typed {
-    RECORD getType()
-}
-'note left: //Классифицируемость//\n(входит в коллекцию)
-
-interface Displayable {
-    String getTitle()
-}
-'note left: //Отображаемость//\n(однозначно находится человеком)
-
-interface Temporal {
-    Period getLife()
-}
-'note left: //Временность//\n(имеет ограниченный срок жизни)
-
-interface Body {
-    Object getBody()
-}
-'note left: //Содержательность//\n(имеет структуру/тело)
-
-interface Type {
-    Record[] getRecords()
-}
-'note left: //Тип/класс//\n(является коллекцией элементов, списком)
-interface Meta {
-    Object getSchema()
-}
-'note left: //Схема данных//\n(описывает структуру)
-remove Displayable
-remove Temporal
-remove Body
-remove Typed
-remove Identifiable
-remove Meta
-remove Type
-
-abstract RECORD <<Identifiable>> {
-    UUID id
-}
-'note right: Запись таблицы БД
-RECORD ..|> Identifiable
-
-abstract ENTRY <<Displayable>>  {
-    UUID id
-    String title
-}
-'note right: Объект с наименованием
-ENTRY -up-|> RECORD
-ENTRY ..|> Displayable
-
-abstract DOCUMENT <<Body>> {
-    UUID id
-    JSON body
-}
-DOCUMENT -up-|> RECORD
-DOCUMENT ..|> Body
-ENTRY  .[hidden] DOCUMENT
-
-frame "Простые справочники" as simple {
-
-abstract LIST <<Type>> {
-    UUID id
-    String title
-}
-abstract ::ITEM <<Typed>>{
-    UUID id
-    String title
-    List type
-}
-}
-note bottom of simple: Тип транспорта, Роли контрагента
-::ITEM -up-|> ENTRY
-::ITEM ..|> Typed
+skinparam FrameFontSize 15
+skinparam PackageFontSize 15
 
 
-LIST -up-|> ENTRY
-::ITEM -left-* LIST
+    package solvo.cloud.model  #pink;line:B71C1C;text:B71C1C;line.bold {
 
-
-frame "Доменные сущности" as single {
-    abstract SCHEMA<? extends FORM> <<Meta>> <<Type>> <<Temporal>>{
-        UUID id
-        JSON schema
+    interface Procedural <<Interface>> ##[dashed]C62828 {
+        ~ UUID getStatus()
+        ~ String getProcess()
     }
-    abstract FORM <<Displayable>> <<Typed>>  {
-        UUID id
-        JSON data
-        ....
-        SCHEMA schema
-        ....
-        String displayString
+    interface Importable <<Interface>> ##[dashed]C62828{
+        ~ getSourcePointer()
+    }
+    interface Body <<Interface>>  ##[dashed]C62828{
+        ~ JsonNode getBody()
+    }
+    interface Displayable <<Interface>>  ##[dashed]C62828{
+        ~ String getTitle()
+    }
+
+    interface Collectable<L extends Listing> <<Interface>> ##[dashed]C62828{
+        ~ L getCollector()
+    }
+    interface Searchable <<Interface>>  ##[dashed]C62828{
+        ~ String getSearchString()
+    }
+    abstract class Document {
+    }
+
+    abstract class Entry {
+    }
+    abstract class Record {
+        - String title
+    }
+    package catalog <<Frame>> #B0E0E6 {
+        abstract class Catalog #line.bold;line:008080;text:008080{
+        }
+        abstract class Edition<C extends Catalog> #line.bold;line:008080;text:008080{
+        }
+        abstract class Option<C extends Catalog> #line.bold;line:008080;text:008080{
+            - JsonNode data
+            + JsonNode getBody()
+        }
+    }
+    package list <<Frame>>  #B0E0E6{
+        abstract class Item<L extends Listing> #line.bold;line:008080;text:008080 {
+            - L collector
+            + L getCollector()
+        }
+        abstract class Listing #line.bold;line:008080;text:008080 {
+        }
+    }
+    package domain <<Frame>>  #B0E0E6 {
+        abstract class Cast #line.bold;line:008080;text:008080{
+            - JsonNode schema
+            - Life life
+            + JsonNode getBody()
+        }
+        abstract class Sample<C extends Cast> #line.bold;line:008080;text:008080{
+            - JsonNode data
+            - String displayString
+            - C cast
+            - UUID status
+            - String process
+            - SourcePointer sourcePointer
+            + JsonNode getBody()
+        }
     }
 }
-note right of FORM: Заявки, Предложения
-
-SCHEMA ..|> Type
-SCHEMA ..|> Meta
-SCHEMA -up-|> DOCUMENT
-FORM ..|> Typed
-FORM ..|> Displayable
-FORM -up-|>  DOCUMENT
-FORM -left-* SCHEMA
-frame "Основные справочники (мастер-данные)" as mdm {
-abstract CATALOGUE {
-    UUID id
-    String title
+package org.springframework.data.jpa.domain #6db33f;text:E8F5E9{
+    abstract class AbstractAuditable<U, PK extends Serializable> {
+        - UUID id
+        - PseudoUser createdBy
+        - ZonedDateTime createdDate
+        - PseudoUser lastModifiedBy
+        - ZonedDateTime lastModifiedDate
+    }
 }
-CATALOGUE -up-|> LIST
-
-abstract CATALOGUE_SCHEMA <<Typed>>{
-    UUID id
-    JSON schema
-}
-abstract ::REFERENCE {
-    UUID id
-    JSON data
-    ....
-    SCHEMA schema
-    ....
-    String displayString
-}
-}
-note left of ::REFERENCE: Контрагенты, Локации, ...
-CATALOGUE_SCHEMA -up-|> SCHEMA
-CATALOGUE *-right- CATALOGUE_SCHEMA
-CATALOGUE_SCHEMA *-right- ::REFERENCE
-::REFERENCE -up-|> FORM
-::REFERENCE ..|> Body
-
+Listing <|--down[thickness=3]- Catalog
+Collectable <|.. Item #C62828
+Record <|-[thickness=3]- Item
+Displayable <|.. Sample #C62828
+Procedural <|.. Sample #C62828
+Importable <|.. Sample #C62828
+Document <|-[thickness=3]- Sample
+Body <|.. Document #C62828
+Entry <|-[thickness=3]- Document
+Record <|-[thickness=3]- Listing
+Collectable <|.. Edition #C62828
+Cast <|-[thickness=3]- Edition
+Cast *-[thickness=2]left- Sample #008080
+Listing *-[thickness=2]right---- Item #008080
+Catalog *------left[thickness=2]----- Edition #008080
+Catalog *-----left[thickness=2]----- Option #008080
+Edition <.up. Option
+Body <|.. Option #C62828
+Item <|-[thickness=3]- Option
+Document <|-[thickness=3]- Cast
+AbstractAuditable <|-[thickness=3]- Entry: <PseudoUser, UUID>
+Displayable <|.. Record  #C62828
+Entry <|-[thickness=3]- Record
+Body -right[hidden]- Searchable
 @enduml
-

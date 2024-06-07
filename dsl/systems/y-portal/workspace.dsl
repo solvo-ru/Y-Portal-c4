@@ -98,7 +98,7 @@ workspace extends ../../solvo-landscape.dsl {
             bpm -> yPortal.consul "Регистрация, конфигурация" "DNS/HTTP" "aux, collect, safe"
 
             Group BackEnd {
-                requestWorker = container Requests {
+                requestWorker = container ShipmentRequest {
                     // !docs docs/request
                     properties {
                         wiki.document.id 6V4RDZuJnJ
@@ -106,7 +106,7 @@ workspace extends ../../solvo-landscape.dsl {
                     description "Сервис заявок на перевозку"
                     !include ../../fragments/worker-dummy.pdsl
                 }
-                trDb = container "Request DB" {
+                trDb = container RequestDB {
                     technology "PostreSQL 16"
                     tags db Postgres
                     request = component REQUEST "" Table "table"
@@ -115,13 +115,14 @@ workspace extends ../../solvo-landscape.dsl {
                 }
                 requestWorker.repo -> trDb "" "JDBC" "safe, sync, major"
 
-                offerWorker = container Offers {
+                offerWorker = container Offer {
                     description "Сервис предложений"
                     !include ../../fragments/worker-dummy.pdsl
 
                 }
-                offerDb = container "OfferDB" {
-                    technology "PostreSQL 16"
+                offerDb = container "OfferDB {
+
+                technology "PostreSQL 16"
                     tags db Postgres
                     offer = component OFFER "" Table "table"
                     offerSchema = component OFFER_SCHEMA "" Table "table"
@@ -129,7 +130,7 @@ workspace extends ../../solvo-landscape.dsl {
                 }
                 offerWorker.repo -> offerDb "" "JDBC" "safe, sync, major"
 
-                actorWorker = container "Actor" {
+                actorWorker = container Actor {
                     description "Сервис участников процесса"
                     !include ../../fragments/worker-dummy.pdsl
                     tags doubt
@@ -169,7 +170,7 @@ workspace extends ../../solvo-landscape.dsl {
                     description "Сервис справочников"
                     !include ../../fragments/worker-dummy.pdsl
                 }
-                refDb = container "MD DB" {
+                refDb = container "ReferenceDB" {
                     technology "PostreSQL 16"
                     tags db Postgres
 
@@ -214,7 +215,6 @@ workspace extends ../../solvo-landscape.dsl {
             !script ../../scripts/Tagger.groovy {
             }
 
-        }
 
         development = deploymentEnvironment "Back-End Development" {
             deploymentNode "ПК разработчика" "" {
@@ -280,6 +280,7 @@ workspace extends ../../solvo-landscape.dsl {
 
 
     }
+
     !script groovy {
         import  com.structurizr.view.ViewSet
         ViewSet views =        workspace.views
@@ -386,5 +387,4 @@ workspace extends ../../solvo-landscape.dsl {
         // }
 
     }
-
 }
