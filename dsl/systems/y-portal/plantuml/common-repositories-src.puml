@@ -1,0 +1,37 @@
+@startuml
+!pragma useIntermediatePackages false
+!includesub common-models-src.puml!DEFAULT
+
+interface org.springframework.data.jpa.repository.JpaRepository<T,ID>
+
+package cloud.solvo.common.repositories {
+    interface SimpleListRepository extends org.springframework.data.jpa.repository.JpaRepository<SimpleListImpl, UUID> {
+    }
+
+    interface SimpleListItemRepository extends org.springframework.data.jpa.repository.JpaRepository<SimpleListItemImpl, UUID> {
+    }
+
+    interface RichListRepository extends org.springframework.data.jpa.repository.JpaRepository<RichListImpl, UUID> {
+    }
+
+    interface RichListItemRepository extends org.springframework.data.jpa.repository.JpaRepository<RichListItemImpl, UUID> {
+    }
+
+    interface RichListMetaRepository extends org.springframework.data.jpa.repository.JpaRepository<RichListMetaImpl, UUID> {
+    }
+
+    interface DomainItemRepository extends org.springframework.data.jpa.repository.JpaRepository<DomainItemImpl, UUID> {
+    }
+
+    interface DomainMetaRepository extends org.springframework.data.jpa.repository.JpaRepository<DomainMetaImpl, UUID> {
+    }
+}
+SimpleListRepository [SimpleListImpl] --|>  JpaRepository
+SimpleListRepository [SimpleListImpl] ..> SimpleListImpl
+SimpleListItemRepository ..> SimpleListItemImpl
+RichListRepository ..> RichListImpl
+RichListItemRepository ..> RichListItemImpl
+RichListMetaRepository ..> RichListMetaImpl
+DomainItemRepository ..> DomainItemImpl
+DomainMetaRepository ..> DomainMetaImpl
+@enduml

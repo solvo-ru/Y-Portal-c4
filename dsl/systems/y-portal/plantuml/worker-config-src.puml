@@ -1,0 +1,14 @@
+@startuml
+!pragma useIntermediatePackages false
+!import config
+
+package cloud.solvo.worker.config {
+    class WorkerConfig {
+
+    }
+}
+@enduml
+
+@startjson config
+!include application.json
+@endjson

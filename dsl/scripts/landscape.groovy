@@ -3,11 +3,11 @@ import com.structurizr.api.WorkspaceApiClient
 import groovy.transform.Field
 import com.structurizr.configuration.WorkspaceScope
 
-@Field static final STRUCTURIZR_ONPREMISES_URL = 'https://structurizr.moarse.ru'
-@Field static final ADMIN_API_KEY_PLAINTEXT = 'CozyPlace'
+@Field static final STRUCTURIZR_ONPREMISES_URL = 'http://structurizr.solvo.ru'
+@Field static final ADMIN_API_KEY_PLAINTEXT = 'CozyPlace-36'
 
 
-def workspaces = getWorkspaces([2, 5, 6])
+def workspaces = getWorkspaces([2, 3, 4])
 workspaces.each { subWorkspace ->
     def softwareSystem = subWorkspace.model.softwareSystems.find { !it.containers.isEmpty() }
     if (softwareSystem) {

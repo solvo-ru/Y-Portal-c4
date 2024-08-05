@@ -1,7 +1,8 @@
 @startuml
+!include common-models-src.puml
+
 hide empty members
 hide circle
-set separator none
 skinparam Class {
  FontSize 20
  FontSize<<interface>> 10
@@ -11,104 +12,4 @@ skinparam Class {
 }
 skinparam FrameFontSize 15
 skinparam PackageFontSize 15
-
-
-    package solvo.cloud.model  #pink;line:B71C1C;text:B71C1C;line.bold {
-
-    interface Procedural <<Interface>> ##[dashed]C62828 {
-        ~ UUID getStatus()
-        ~ String getProcess()
-    }
-    interface Importable <<Interface>> ##[dashed]C62828{
-        ~ getSourcePointer()
-    }
-    interface Body <<Interface>>  ##[dashed]C62828{
-        ~ JsonNode getBody()
-    }
-    interface Displayable <<Interface>>  ##[dashed]C62828{
-        ~ String getTitle()
-    }
-
-    interface Collectable<L extends Listing> <<Interface>> ##[dashed]C62828{
-        ~ L getCollector()
-    }
-    interface Searchable <<Interface>>  ##[dashed]C62828{
-        ~ String getSearchString()
-    }
-    abstract class Document {
-    }
-
-    abstract class Entry {
-    }
-    abstract class Record {
-        - String title
-    }
-    package catalog <<Frame>> #B0E0E6 {
-        abstract class Catalog #line.bold;line:008080;text:008080{
-        }
-        abstract class Edition<C extends Catalog> #line.bold;line:008080;text:008080{
-        }
-        abstract class Option<C extends Catalog> #line.bold;line:008080;text:008080{
-            - JsonNode data
-            + JsonNode getBody()
-        }
-    }
-    package list <<Frame>>  #B0E0E6{
-        abstract class Item<L extends Listing> #line.bold;line:008080;text:008080 {
-            - L collector
-            + L getCollector()
-        }
-        abstract class Listing #line.bold;line:008080;text:008080 {
-        }
-    }
-    package domain <<Frame>>  #B0E0E6 {
-        abstract class Cast #line.bold;line:008080;text:008080{
-            - JsonNode schema
-            - Life life
-            + JsonNode getBody()
-        }
-        abstract class Sample<C extends Cast> #line.bold;line:008080;text:008080{
-            - JsonNode data
-            - String displayString
-            - C cast
-            - UUID status
-            - String process
-            - SourcePointer sourcePointer
-            + JsonNode getBody()
-        }
-    }
-}
-package org.springframework.data.jpa.domain #6db33f;text:E8F5E9{
-    abstract class AbstractAuditable<U, PK extends Serializable> {
-        - UUID id
-        - PseudoUser createdBy
-        - ZonedDateTime createdDate
-        - PseudoUser lastModifiedBy
-        - ZonedDateTime lastModifiedDate
-    }
-}
-Listing <|--down[thickness=3]- Catalog
-Collectable <|.. Item #C62828
-Record <|-[thickness=3]- Item
-Displayable <|.. Sample #C62828
-Procedural <|.. Sample #C62828
-Importable <|.. Sample #C62828
-Document <|-[thickness=3]- Sample
-Body <|.. Document #C62828
-Entry <|-[thickness=3]- Document
-Record <|-[thickness=3]- Listing
-Collectable <|.. Edition #C62828
-Cast <|-[thickness=3]- Edition
-Cast *-[thickness=2]left- Sample #008080
-Listing *-[thickness=2]right---- Item #008080
-Catalog *------left[thickness=2]----- Edition #008080
-Catalog *-----left[thickness=2]----- Option #008080
-Edition <.up. Option
-Body <|.. Option #C62828
-Item <|-[thickness=3]- Option
-Document <|-[thickness=3]- Cast
-AbstractAuditable <|-[thickness=3]- Entry: <PseudoUser, UUID>
-Displayable <|.. Record  #C62828
-Entry <|-[thickness=3]- Record
-Body -right[hidden]- Searchable
 @enduml

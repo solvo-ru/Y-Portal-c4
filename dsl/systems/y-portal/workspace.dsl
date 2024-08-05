@@ -120,9 +120,8 @@ workspace extends ../../solvo-landscape.dsl {
                     !include ../../fragments/worker-dummy.pdsl
 
                 }
-                offerDb = container "OfferDB {
-
-                technology "PostreSQL 16"
+                offerDb = container "OfferDB" {
+                    technology "PostreSQL 16"
                     tags db Postgres
                     offer = component OFFER "" Table "table"
                     offerSchema = component OFFER_SCHEMA "" Table "table"
@@ -212,80 +211,80 @@ workspace extends ../../solvo-landscape.dsl {
 
             }
 
-            !script ../../scripts/Tagger.groovy {
-            }
-
-
-        development = deploymentEnvironment "Back-End Development" {
-            deploymentNode "ПК разработчика" "" {
-                deploymentNode "Docker Engine" {
-                    deploymentNode "Воркеры" " " "Docker Compose" {
-                        containerInstance yPortal.requestWorker
-                        containerInstance yPortal.offerWorker
-                        containerInstance yPortal.messageWorker
-                        containerInstance yPortal.referenceWorker
-                        containerInstance yPortal.shipmentWorker
-                    }
-                    deploymentNode "Cloud" "Docker-контейнер" "Ubuntu 22.10" {
-                        containerInstance yPortal.consul
-                        containerInstance yPortal.apiGateway
-                    }
-                }
-            }
-            deploymentNode "Dev-стенд " "" {
-                deploymentNode "Docker Engine" {
-                    deploymentNode "Camunda" "" "Docker Compose" {
-                        softwareSystemInstance bpm
-
-                    }
-                    deploymentNode "Front" "" "Docker Compose" {
-                        containerInstance yPortal.web
-                    }
-                    infrastructureNode "NGinx"
-                }
-            }
+           
         }
+
+            development = deploymentEnvironment "Back-End Development" {
+                deploymentNode "ПК разработчика" "" {
+                    deploymentNode "Docker Engine" {
+                        deploymentNode "Воркеры" " " "Docker Compose" {
+                            containerInstance yPortal.requestWorker
+                            containerInstance yPortal.offerWorker
+                            containerInstance yPortal.messageWorker
+                            containerInstance yPortal.referenceWorker
+                            containerInstance yPortal.shipmentWorker
+                        }
+                        deploymentNode "Cloud" "Docker-контейнер" "Ubuntu 22.10" {
+                            containerInstance yPortal.consul
+                            containerInstance yPortal.apiGateway
+                        }
+                    }
+                }
+                deploymentNode "Dev-стенд " "" {
+                    deploymentNode "Docker Engine" {
+                        deploymentNode "Camunda" "" "Docker Compose" {
+                            softwareSystemInstance bpm
+
+
+                        }
+                        deploymentNode "Front" "" "Docker Compose" {
+                            containerInstance yPortal.web
+                        }
+                        infrastructureNode "NGinx"
+                    }
+                }
+            }
 
         // Production environment using Kubernetes
-        production = deploymentEnvironment "Production" {
-            // deploymentGroup "Kubernetes Cluster" {
-            //     deploymentNode "Kubernetes Master" {
-            //         // ...
-            //     }
-            //     deploymentNode "Kubernetes Node" {
-            //         // ...
-            //         // containerInstance trWorker {
-            //         //     // ...
-            //         // }
-            //         // ... Other container instances
-            //     }
-            // }
-        }
-        yPortal.apiGateway -> bpm "Передача в БП" "gRPC" "sync, major, command, super"
-        yPortal.apiGateway -> s3 "Хранение файлов" "HTTP" "safe, sync, aux"
-        router -> yPortal.web "Управляет заявками" "HTTPS" "sync, major, request"
-        dispatcher -> yPortal.app "Подтверждает перевозку" "HTTPS" "sync, request"
-        dispatcher -> yPortal.web "Вносит предложения" "HTTPS" "sync, major, request"
-        transport -> yPortal.app "Отчитывается о перевозке" "HTTPS" "sync, aux, message"
+            production = deploymentEnvironment "Production" {
+        //     // deploymentGroup "Kubernetes Cluster" {
+        //     //     deploymentNode "Kubernetes Master" {
+        //     //         // ...
+        //     //     }
+        //     //     deploymentNode "Kubernetes Node" {
+        //     //         // ...
+        //     //         // containerInstance trWorker {
+        //     //         //     // ...
+        //     //         // }
+        //     //         // ... Other container instances
+        //     //     }
+            }
+        
+            yPortal.apiGateway -> bpm "Передача в БП" "gRPC" "sync, major, command, super"
+            yPortal.apiGateway -> s3 "Хранение файлов" "HTTP" "safe, sync, aux"
+            router -> yPortal.web "Управляет заявками" "HTTPS" "sync, major, request"
+            dispatcher -> yPortal.app "Подтверждает перевозку" "HTTPS" "sync, request"
+            dispatcher -> yPortal.web "Вносит предложения" "HTTPS" "sync, major, request"
+            transport -> yPortal.app "Отчитывается о перевозке" "HTTPS" "sync, aux, message"
 
-        yPortal.web -> yPortal.apiGateway Запрос "HTTPS REST/JSON NGINX" " sync, request, major"
-        yPortal.app -> yPortal.apiGateway Запрос "HTTPS REST/JSON NGINX" " sync, request"
-        yPortal.api -> yPortal.apiGateway "API call" "HTTPS REST/JSON NGINX" " sync, request"
-        yPortal.apiGateway -> s3 "Файлы" "HTTP" "major, sync, safe"
-        yPortal.web -> iam "Получение токена" "JWT" "check, sync, major, leap"
-        yPortal.app -> iam "Получение токена" "JWT" "check, sync, major, leap"
-        yPortal.apiGateway -> iam "Проверка токена" "JWT" "check, sync, major"
-        bpm -> yms "Создает автовизит" "" "leap, vague, major"
+            yPortal.web -> yPortal.apiGateway Запрос "HTTPS REST/JSON NGINX" " sync, request, major"
+            yPortal.app -> yPortal.apiGateway Запрос "HTTPS REST/JSON NGINX" " sync, request"
+            yPortal.api -> yPortal.apiGateway "API call" "HTTPS REST/JSON NGINX" " sync, request"
+            yPortal.apiGateway -> s3 "Файлы" "HTTP" "major, sync, safe"
+            yPortal.web -> iam "Получение токена" "JWT" "check, sync, major, leap"
+            yPortal.app -> iam "Получение токена" "JWT" "check, sync, major, leap"
+            yPortal.apiGateway -> iam "Проверка токена" "JWT" "check, sync, major"
+            bpm -> yms "Создает автовизит" "" "leap, vague, major"
 
-
+        
 
     }
 
-    !script groovy {
-        import  com.structurizr.view.ViewSet
-        ViewSet views =        workspace.views
-        views.systemLandscapeViews=null
-    }
+    // !script groovy {
+    //     import  com.structurizr.view.ViewSet
+    //     ViewSet views =        workspace.views
+    //     views.systemLandscapeViews=null
+    // }
     views {
         systemContext yPortal yp-context "Системный контекст Портала Перевозчика" {
             include *

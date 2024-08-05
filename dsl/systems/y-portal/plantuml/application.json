@@ -1,0 +1,14 @@
+{
+  "cloud": {
+    "solvo": {
+      "worker": {
+        "entities": {
+          "family": "domain",
+          "domainMeta": "default",
+          "domainItem": "default"
+        },
+        "businessTerm": "shipment-rfp"
+      }
+    }
+  }
+}

@@ -1,0 +1,131 @@
+@startuml
+!pragma useIntermediatePackages false
+class org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
+package cloud.solvo.common.models  #pink;line:B71C1C;text:B71C1C;line.bold {
+    package interfaces {
+        interface Procedural <<Interface>> ##[dashed]C62828 {
+            ~ UUID getStatus()
+            ~ String getProcess()
+        }
+        interface Importable <<Interface>> ##[dashed]C62828{
+            ~ getSourcePointer()
+        }
+        interface Body <<Interface>>  ##[dashed]C62828{
+            ~ JsonNode getBody()
+        }
+        interface Displayable <<Interface>>  ##[dashed]C62828{
+            ~ String getTitle()
+        }
+
+        interface Collectable<L extends SimpleList> <<Interface>> ##[dashed]C62828{
+            ~ L getCollector()
+        }
+        interface Searchable <<Interface>>  ##[dashed]C62828{
+            ~ String getSearchString()
+        }
+    }
+    package base {
+        abstract class AbstractBodied {
+        }
+
+        abstract class AbstractAuditable {
+                - UUID id
+                - UUID createdBy
+                - LocalDateTime createdDate
+                - UUID lastModifiedBy
+                - LocalDateTime lastModifiedDate
+        }
+        abstract class AbstractNamed {
+            - String title
+        }
+    }
+    package catalog <<Frame>> #B0E0E6 {
+        abstract class RichList #line.bold;line:008080;text:008080{
+        }
+        abstract class RichListMeta<C extends RichList> #line.bold;line:008080;text:008080{
+        }
+        abstract class RichListItem<C extends RichList> #line.bold;line:008080;text:008080{
+            - JsonNode data
+            + JsonNode getBody()
+        }
+    }
+    package list <<Frame>>  #B0E0E6{
+        abstract class SimpleListItem<L extends SimpleList> <<MappedSuperclass>> #line.bold;line:008080;text:008080 {
+            - L collector
+            + L getCollector()
+        }
+        abstract class SimpleList #line.bold;line:008080;text:008080 {
+        }
+    }
+    package domain <<Frame>>  #B0E0E6 {
+        abstract class DomainMeta #line.bold;line:008080;text:008080{
+            - JsonNode schema
+            - Life life
+            + JsonNode getBody()
+        }
+        abstract class DomainItem<C extends DomainMeta> #line.bold;line:008080;text:008080{
+            - JsonNode data
+            - String displayString
+            - C cast
+            - UUID status
+            - String process
+            - SourcePointer sourcePointer
+            + JsonNode getBody()
+        }
+    }
+
+    class WorkerEntityManagerFactory extends org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
+
+}
+
+SimpleList <|--down[thickness=3]- RichList
+Collectable <|.. SimpleListItem #C62828
+AbstractNamed <|-[thickness=3]- SimpleListItem
+Displayable <|.. DomainItem #C62828
+Procedural <|.. DomainItem #C62828
+Importable <|.. DomainItem #C62828
+AbstractBodied <|-[thickness=3]- DomainItem
+Body <|.. AbstractBodied #C62828
+AbstractAuditable <|-[thickness=3]- AbstractBodied
+AbstractNamed <|-[thickness=3]- SimpleList
+Collectable <|.. RichListMeta #C62828
+DomainMeta <|-[thickness=3]- RichListMeta
+DomainMeta *-[thickness=2]left- DomainItem #008080
+SimpleList *-[thickness=2]right---- SimpleListItem #008080
+RichList *------left[thickness=2]----- RichListMeta #008080
+RichList *-----left[thickness=2]----- RichListItem #008080
+RichListMeta <.up. RichListItem
+Body <|.. RichListItem #C62828
+SimpleListItem <|-[thickness=3]- RichListItem
+AbstractBodied <|-[thickness=3]- DomainMeta
+Displayable <|.. AbstractNamed  #C62828
+AbstractAuditable <|-[thickness=3]- AbstractNamed
+Body -right[hidden]- Searchable
+!startsub DEFAULT
+package cloud.solvo.common.models.impl {
+    class SimpleListImpl <<Entity>> <<Table>>  {
+    }
+    class SimpleListItemImpl {
+    }
+    class RichListImpl{
+    }
+    class RichListItemImpl {
+    }
+    class RichListMetaImpl  {
+    }
+    class DomainMetaImpl {
+    }
+    class DomainItemImpl  {
+    }
+}
+!endsub
+SimpleListImpl -up-|> SimpleList
+SimpleListItemImpl  -up-|> [SimpleListImpl] SimpleListItem
+RichListImpl -up-|> RichList
+RichListItemImpl -up-|> [RichListImpl] RichListItem
+RichListMetaImpl -up-|> [RichListImpl] RichListMeta
+DomainMetaImpl -up-|> DomainMeta
+DomainItemImpl -up-|> [DomainMetaImpl] DomainItem
+
+
+@enduml

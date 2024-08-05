@@ -128,7 +128,7 @@ workspace "Экосистема продуктов Solvo" {
 
 
  views {
-        theme https://structurizr.moarse.ru/share/3/a0a22ef6-206a-4a77-876d-a7f103b6f251/theme
+        theme http://structurizr.solvo.ru/share/3/a0a22ef6-206a-4a77-876d-a7f103b6f251/theme
         properties {
             "structurizr.timezone" "Europe/Moscow"
             "structurizr.locale" "ru-RU"
