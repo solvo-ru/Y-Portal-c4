@@ -1,15 +1,15 @@
 
 #Basic styles
-/opt/structurizr-cli/structurizr.sh push -url http://structurizr.solvo.ru/api -id 1 -key 57befbca-538d-4d36-b2be-d34fbe92dd97 -secret 3336aed7-60ba-47e6-baa4-7a3839b4e01b -workspace dsl/themes/basic/styles.dsl -archive false
+structurizr push -url http://structurizr.solvo.ru/api -id 3 -key 945d4300-db05-4170-a147-c102ec4764a8 -secret e9884cb6-df54-423c-a9ec-e1390e6b57f9 -workspace dsl/themes/basic/styles.dsl -archive false
 
 #Conductor
-/opt/structurizr-cli/structurizr.sh push  -url http://structurizr.solvo.ru/api -id 2 -key 36237412-edb2-4621-8b0d-a1f4d96f2ae0 -secret 85acec99-4119-42b5-a472-def53f09ca21 -workspace dsl/systems/conductor/workspace.dsl -archive false
+structurizr push -url http://structurizr.solvo.ru/api -id 5 -key 150be733-f197-4199-ae98-bb8ea3654d87 -secret a6b4b760-eca0-4eab-b5e5-779941f0e3e9 -workspace dsl/systems/conductor/workspace.dsl -archive false
 
 #Portal
-/opt/structurizr-cli/structurizr.sh push -url http://structurizr.solvo.ru/api -id 3 -key 05080e34-7c4d-4a87-8f04-4d2031cb6ecc -secret ffd4af59-e203-479a-afaf-30bbaa6b91e7 -workspace dsl/systems/y-portal/workspace.dsl -archive false
+structurizr push -url http://structurizr.solvo.ru/api -id 2 -key 44315f4b-6199-4a18-ae05-0265e81cc719 -secret 99559ec5-bf92-4e1f-8420-c6f466dfb015 -workspace dsl/systems/y-portal/workspace.dsl -archive false
 
 #Cloud
-/opt/structurizr-cli/structurizr.sh push -url http://structurizr.solvo.ru/api -id 4 -key c0bed49a-105d-46d0-845d-d7560250f217 -secret 85cfc67d-a719-4bbe-9473-49dd4ac9be85 -workspace dsl/systems/cloud/workspace.dsl -archive false
+structurizr push -url http://structurizr.solvo.ru/api -id 6 -key 78d51b26-e8c0-4b3a-ae28-20b6d37eca34 -secret bb2afc4f-8f58-4a53-b58f-e3086e7555fd -workspace dsl/systems/cloud/workspace.dsl -archive false
 
 #Landscape
-/opt/structurizr-cli/structurizr.sh push -url http://structurizr.solvo.ru/api -id 5 -key 8cc77281-fe21-4c24-be42-f7c2e9e0d6be -secret e0c1b5b5-e2ff-4a9c-8797-c6064c25fff6 -workspace dsl/solvo-landscape.dsl -archive false
+structurizr push -url http://structurizr.solvo.ru/api -id 4 -key b1cec52a-c65b-4ca0-a526-1650b9bf6155 -secret cb394e4d-48b2-4cc8-95e6-b662e0dba912 -workspace dsl/solvo-landscape.dsl -archive false

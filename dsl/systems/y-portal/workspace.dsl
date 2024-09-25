@@ -4,7 +4,6 @@ workspace extends ../../solvo-landscape.dsl {
     description "[Camunda Edition]"
     properties {
         wiki.document.id GKzQMcy43s
-
     }
     !impliedRelationships true
     !identifiers hierarchical
@@ -12,12 +11,10 @@ workspace extends ../../solvo-landscape.dsl {
     configuration {
         visibility public
         scope softwaresystem
-        users {
-            moarse write
-            guest read
-        }
     }
+    !script ../../scripts/unlandscape.groovy {
 
+    }
     model {
 
         router = person "Логист" {
@@ -34,11 +31,11 @@ workspace extends ../../solvo-landscape.dsl {
         !extend yPortal {
             description "Система управления заявками на перевозку"
             properties {
-                "wiki.document.id" Sl14kRICxJ
+                wiki.document.id Sl14kRICxJ
             }
 
             Group FrontEnd {
-                web = container "Web-портал" "Доступ ко функциям системы через браузер" {
+                web = container "Web-портал" "Доступ к функциям системы через браузер" {
 
                     tags browser Solvo Product
                     perspectives {
@@ -98,7 +95,7 @@ workspace extends ../../solvo-landscape.dsl {
             bpm -> yPortal.consul "Регистрация, конфигурация" "DNS/HTTP" "aux, collect, safe"
 
             Group BackEnd {
-                requestWorker = container ShipmentRequest {
+                srfpWorker = container ShipmentRFP {
                     // !docs docs/request
                     properties {
                         wiki.document.id 6V4RDZuJnJ
@@ -106,14 +103,14 @@ workspace extends ../../solvo-landscape.dsl {
                     description "Сервис заявок на перевозку"
                     !include ../../fragments/worker-dummy.pdsl
                 }
-                trDb = container RequestDB {
+                srfpDb = container "Shipment RFP DB" {
                     technology "PostreSQL 16"
                     tags db Postgres
                     request = component REQUEST "" Table "table"
                     requestSchema = component REQUEST_SCHEMA "" Table "table"
                     request -> requestSchema "schemaId" "FK" "vague"
                 }
-                requestWorker.repo -> trDb "" "JDBC" "safe, sync, major"
+                srfpWorker.repo -> srfpDb "" "JDBC" "safe, sync, major"
 
                 offerWorker = container Offer {
                     description "Сервис предложений"
@@ -155,7 +152,7 @@ workspace extends ../../solvo-landscape.dsl {
                     tags future Addon
                 }
 
-                messageWorker = container Notifier {
+                notifierService = container Notifier {
                     description "Сервис уведомлений"
                     !include ../../fragments/worker-dummy.pdsl
                     address = component addresser
@@ -165,11 +162,11 @@ workspace extends ../../solvo-landscape.dsl {
                     -> app "Оповещения" "SSE" "async, message, aux"
                 }
 
-                referenceWorker = container Reference {
+                catalogWorker = container Catalog {
                     description "Сервис справочников"
                     !include ../../fragments/worker-dummy.pdsl
                 }
-                refDb = container "ReferenceDB" {
+                catalogDb = container "Catalog DB" {
                     technology "PostreSQL 16"
                     tags db Postgres
 
@@ -181,14 +178,17 @@ workspace extends ../../solvo-landscape.dsl {
                     referenceSchema -> registry "registryId" "FK" "vague"
                     item -> registry "registryId" "FK" "vague"
                 }
-                referenceWorker.repo -> refDb "" "JDBC" "safe, sync, major"
+                catalogWorker.repo -> catalogDb "" "JDBC" "safe, sync, major"
 
-                shipmentWorker = container "Shipment worker" {
+                listWorker = container List {
+                    description "Сервис списков"
                     !include ../../fragments/worker-dummy.pdsl
-                    tags doubt
                 }
-
-
+                listDb = container "List DB" {
+                    technology "PostreSQL 16"
+                    tags db Postgres
+                }
+                listWorker.repo -> listDb "" "JDBC" "safe, sync, major"
 
 
                 /***
@@ -218,11 +218,11 @@ workspace extends ../../solvo-landscape.dsl {
                 deploymentNode "ПК разработчика" "" {
                     deploymentNode "Docker Engine" {
                         deploymentNode "Воркеры" " " "Docker Compose" {
-                            containerInstance yPortal.requestWorker
+                            containerInstance yPortal.srfpWorker
                             containerInstance yPortal.offerWorker
-                            containerInstance yPortal.messageWorker
-                            containerInstance yPortal.referenceWorker
-                            containerInstance yPortal.shipmentWorker
+                            containerInstance yPortal.notifierService
+                            containerInstance yPortal.catalogWorker
+                            containerInstance yPortal.listWorker
                         }
                         deploymentNode "Cloud" "Docker-контейнер" "Ubuntu 22.10" {
                             containerInstance yPortal.consul
@@ -280,11 +280,6 @@ workspace extends ../../solvo-landscape.dsl {
 
     }
 
-    // !script groovy {
-    //     import  com.structurizr.view.ViewSet
-    //     ViewSet views =        workspace.views
-    //     views.systemLandscapeViews=null
-    // }
     views {
         systemContext yPortal yp-context "Системный контекст Портала Перевозчика" {
             include *
@@ -328,62 +323,29 @@ workspace extends ../../solvo-landscape.dsl {
             include *
         }
 
-        component yPortal.requestWorker request-structure "Компоненты микросервиса 'Заявка на перевозку'" {
+        component yPortal.srfpWorker request-structure "Компоненты микросервиса 'Заявка на перевозку'" {
             title "Заявка на перевозку"
               include *
             exclude bpm->*
         }
 
-        component yPortal.requestWorker request-infra-structure "Компоненты инфраструктуры на примере микросервиса 'Заявка на перевозку'" {
+        component yPortal.srfpWorker request-infra-structure "Компоненты инфраструктуры на примере микросервиса 'Заявка на перевозку'" {
             title "Spring Cloud"
             include *
             include "element.tag==infra && element.parent==yPortal"
             exclude element==bpm
         }
 
-        component yPortal.refDb api-to-db "Схема ветвления запросов на примере сервиса Reference" {
+        component yPortal.catalogDb api-to-db "Схема ветвления запросов на примере сервиса Reference" {
             title "Потоки данных"
             include element==yPortal.web
             include element==yPortal.apiGateway
             include element==bpm
-            //include element==yPortal.referenceWorker
-            include element.parent==yPortal.referenceWorker
-            include element.parent==yPortal.refDb
+            //include element==yPortal.catalogWorker
+            include element.parent==yPortal.catalogWorker
+            include element.parent==yPortal.catalogDb
             exclude element.tag==infra
         }
-
-
-        // dynamic yPortal yp-bidding "Процесс заявки на перевозку" {
-        //     router -> yPortal.web "Создает заявку в web-форме" ""
-        //     yPortal.web -> yPortal.apiGateway "Вызывает метод API"
-        //     yPortal.apiGateway -> bpm "Маршрутизация на запуск процесса"
-        //     bpm -> yPortal.requestWorker "Сохранить заявку"
-        //     yPortal.requestWorker -> bpm "Вернуть ID"
-        //     router -> bpm "Оформить заявку"
-        //     bpm -> yPortal.requestWorker "Обновить заявку"
-        //     yPortal.requestWorker -> bpm "ОК"
-        //     bpm -> yPortal.messageWorker "Уведомление 'Новая заявка'"
-        //     yPortal.messageWorker -> yPortal.app  "'Новая заявка'"
-        //     yPortal.app -> dispatcher "Получает сообщение"
-        //     dispatcher -> yPortal.web "Заполняет форму предложения"
-        //     yPortal.web -> bpm "Запускает процесс 'Предложение'"
-        //     bpm -> yPortal.offerWorker "Сохранить предложение"
-        //     yPortal.offerWorker -> bpm "Вернуть ID"
-        //     //bpm -> bpm "Отправить сообщение в процесс заявки" 
-        //     router -> bpm "Выбрать победителя"
-        //     dispatcher -> bpm "Подтвердить выполнение"
-        //     bpm -> yms "Создать автовизит"
-        // }
-
-
-        // // Dynamic diagram for Transporting Workflow
-        // dynamic yPortal{
-        //     webPortal -> shipmentWorker "1. Accept shipment"
-        //     shipmentWorker -> shipmentWorker "2. Start shipment"
-        //     shipmentWorker -> shipmentWorker "3. Visit point x"
-        //     shipmentWorker -> shipmentWorker "4. Visit last point"
-        //     shipmentWorker -> trWorker "5. Mark/star results"
-        // }
 
     }
 }
