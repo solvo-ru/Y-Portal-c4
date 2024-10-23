@@ -1,0 +1,77 @@
+@startuml
+title "Maven структура"
+
+protocol GrandParent <<pom>> #teal {
+    - Дистрибуция, выпуск релизов
+    - Версии Maven-плагинов
+}
+
+
+protocol Parent <<pom>> #teal {
+    - Версии общих зависимостей\n(Spring Cloud, Camunda, etc)
+    - Объявление инфраструктурных зависимостей\n(мониторинг, логирование, трассировка)
+    - Применение внутренних стандартов
+}
+Parent -up-|> GrandParent
+
+card Libraries {
+    stereotype TaskListApiClient <<(L, orange) client>>
+    stereotype WorkerDataModel <<(L, orange) library>>
+}
+TaskListApiClient -up-|> Parent
+WorkerDataModel -up-|> Parent
+
+
+protocol ServiceParent <<pom>> #teal {
+    - Spring Boot
+    - Обнаружение и конфигурация сервисов
+    - Процессинг аннотаций
+    - Конфигурация сборки сервисов
+}
+ServiceParent -up-|> Parent
+
+cloud Microservices {
+    stereotype ApiGateway <<service>>
+    stereotype Notificator <<service>>
+    together{
+        stereotype ListWorker <<list>>
+        stereotype ReferenceWorker <<catalog>>
+        entity ShipmentRFP <<domain>>
+        entity ShipmentOffer <<domain>>
+    }
+    ApiGateway ..down[hidden].. ListWorker
+}
+
+ApiGateway -up-|> ServiceParent
+Notificator -up-|> ServiceParent
+
+protocol WorkerParent <<pom>> #teal {
+    - Подключение к Camunda
+    - Протокол Zeebe Worker
+}
+WorkerParent -up-|> ServiceParent
+ListWorker -up-|> WorkerParent
+ReferenceWorker -up-|> WorkerParent
+ShipmentRFP -up-|> WorkerParent
+ShipmentOffer -up-|> WorkerParent
+
+/'protocol BOM {
+    - Reserved for future development
+}
+BOM -up-|> GrandParent'/
+
+metaclass DataModelGenerator <<plugin>>
+DataModelGenerator -up-|> Parent
+
+abstract Dogma {
+    - Стандарт форматирования кода
+    - Валидаторы документации
+}
+Dogma -up-|> GrandParent
+
+ApiGateway ..> TaskListApiClient: для обращений в Camunda
+Parent ..> Dogma: применяет единый\nформат кода
+DataModelGenerator ..> WorkerDataModel: использует\nшаблоны\nклассов
+WorkerParent ..> DataModelGenerator : генерация кода воркеров
+Dogma ..down[hidden].. ServiceParent
+@enduml

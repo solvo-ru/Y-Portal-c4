@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="74577ef" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.6.0">
+  <bpmn:process id="expr_item-persist" name="expr-item-post" isExecutable="true">
+    <bpmn:endEvent id="end">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_1rx3vkc</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1fz5zoj" sourceRef="start" targetRef="item-post" />
+    <bpmn:sequenceFlow id="Flow_1rx3vkc" name="end" sourceRef="item-post" targetRef="end" />
+    <bpmn:startEvent id="start" name="start">
+      <bpmn:extensionElements>
+        <zeebe:formDefinition formId="_stub_item-create-vars" />
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_1fz5zoj</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="item-post" name="Storing with worker">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="=concatenate([serviceName,&#34;_post&#34;])" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=itemData" target="requestDto" />
+          <zeebe:output source="=responseDto" target="itemStored" />
+        </zeebe:ioMapping>
+        <zeebe:executionListeners>
+          <zeebe:executionListener eventType="end" type="=concatenate([&#34;item-posted_&#34;,correlationId])" />
+        </zeebe:executionListeners>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1fz5zoj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1rx3vkc</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="expr_item-persist">
+      <bpmndi:BPMNShape id="Event_00ysd9w_di" bpmnElement="end">
+        <dc:Bounds x="782" y="252" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="start">
+        <dc:Bounds x="342" y="252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="349" y="295" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1b522kz_di" bpmnElement="item-post">
+        <dc:Bounds x="500" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1fz5zoj_di" bpmnElement="Flow_1fz5zoj">
+        <di:waypoint x="378" y="270" />
+        <di:waypoint x="500" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1rx3vkc_di" bpmnElement="Flow_1rx3vkc">
+        <di:waypoint x="600" y="270" />
+        <di:waypoint x="782" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="683" y="252" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
