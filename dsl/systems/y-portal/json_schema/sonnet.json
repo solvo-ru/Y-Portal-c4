@@ -1,0 +1,188 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Procedural": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "process": {
+          "type": "string"
+        }
+      },
+      "required": ["status", "process"]
+    },
+    "Importable": {
+      "type": "object",
+      "properties": {
+        "sourcePointer": {}
+      },
+      "required": ["sourcePointer"]
+    },
+    "Body": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "object"
+        }
+      },
+      "required": ["body"]
+    },
+    "Displayable": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": ["title"]
+    },
+    "Collectable": {
+      "type": "object",
+      "properties": {
+        "collector": {}
+      },
+      "required": ["collector"]
+    },
+    "Searchable": {
+      "type": "object",
+      "properties": {
+        "searchString": {
+          "type": "string"
+        }
+      },
+      "required": ["searchString"]
+    },
+    "AbstractBodied": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/Body" }]
+    },
+    "AbstractAuditable": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "createdBy": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "createdDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastModifiedBy": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "lastModifiedDate": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate"]
+    },
+    "AbstractNamed": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/definitions/AbstractAuditable" },
+        { "$ref": "#/definitions/Displayable" }
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": ["title"]
+    },
+    "SimpleList": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/AbstractNamed" }]
+    },
+    "SimpleListItem": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/definitions/AbstractNamed" },
+        { "$ref": "#/definitions/Collectable" }
+      ],
+      "properties": {
+        "collector": {
+          "$ref": "#/definitions/SimpleList"
+        }
+      },
+      "required": ["collector"]
+    },
+    "RichList": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/SimpleList" }]
+    },
+    "RichListMeta": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/definitions/DomainMeta" },
+        { "$ref": "#/definitions/Collectable" }
+      ],
+      "properties": {
+        "collector": {
+          "$ref": "#/definitions/RichList"
+        }
+      },
+      "required": ["collector"]
+    },
+    "RichListItem": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/definitions/SimpleList " },
+        { "$ref": "#/definitions/Body" }
+      ],
+      "properties": {
+        "data": {
+          "type": "object"
+        }
+      },
+      "required": ["data"]
+    },
+    "DomainMeta": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "object"
+        },
+        "life": {}
+      },
+      "required": ["schema", "life"]
+    },
+    "DomainItem": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/definitions/AbstractBodied" },
+        { "$ref": "#/definitions/Procedural" },
+        { "$ref": "#/definitions/Importable" },
+        { "$ref": "#/definitions/Displayable" }
+      ],
+      "properties": {
+        "data": {
+          "type": "object"
+        },
+        "displayString": {
+          "type": "string"
+        },
+        "cast": {
+          "$ref": "#/definitions/DomainMeta"
+        },
+        "status": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "process": {
+          "type": "string"
+        },
+        "sourcePointer": {}
+      },
+      "required": ["data", "displayString", "cast", "status", "process", "sourcePointer"]
+    }
+  }
+}

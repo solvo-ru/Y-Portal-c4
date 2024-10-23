@@ -20,7 +20,7 @@ workspace extends ../../solvo-landscape.dsl {
 
         !extend bpm {
             properties {
-                wiki.document.id 76d93688-a8f9-4d6b-95d9-9af517d37b9f
+                wiki.document.id TJ1T0ha2XI
             }
             Group FrontEnd {
                 modeler = container "Process Modeler"   {                

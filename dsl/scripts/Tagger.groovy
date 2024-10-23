@@ -1,6 +1,6 @@
-import com.structurizr.Workspace
+import com.structurizr.model.SoftwareSystem
 
-(workspace as Workspace).model.softwareSystems.each {
+workspace.model.softwareSystems.each {
     addTags(it,"system")
     it.containers.each {
         addTags(it, "container")
@@ -9,10 +9,13 @@ import com.structurizr.Workspace
 }
 
 
-static def addTags(parent, suffix) {
+def addTags(parent, suffix) {
     def cats = ['External', 'Tool', 'Pillar', 'Product', 'Addon']
     def stype = (parent.tagsAsSet as List).intersect(cats)
     stype.each{
         parent.addTags("${it} [${suffix}]")
     }
+
+   // stype = stype?.size() == 1 ? "${stype[0]} [${suffix}]" : null
+    //parent.addTags(newTags)
 }

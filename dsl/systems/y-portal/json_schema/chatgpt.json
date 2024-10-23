@@ -1,0 +1,195 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "UUID": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "JsonNode": {
+      "type": "object",
+      "description": "Represents a generic JSON object"
+    },
+    "LocalDateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "SourcePointer": {
+      "type": "string",
+      "description": "Pointer to the source of the data"
+    },
+    "Procedural": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/UUID"
+        },
+        "process": {
+          "type": "string"
+        }
+      },
+      "required": ["status", "process"]
+    },
+    "Importable": {
+      "type": "object",
+      "properties": {
+        "sourcePointer": {
+          "$ref": "#/definitions/SourcePointer"
+        }
+      },
+      "required": ["sourcePointer"]
+    },
+    "Body": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "$ref": "#/definitions/JsonNode"
+        }
+      },
+      "required": ["body"]
+    },
+    "Displayable": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": ["title"]
+    },
+    "Collectable": {
+      "type": "object",
+      "properties": {
+        "collector": {
+          "type": "object"
+        }
+      },
+      "required": ["collector"]
+    },
+    "Searchable": {
+      "type": "object",
+      "properties": {
+        "searchString": {
+          "type": "string"
+        }
+      },
+      "required": ["searchString"]
+    },
+    "AbstractBodied": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "$ref": "#/definitions/JsonNode"
+        }
+      }
+    },
+    "AbstractAuditable": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/UUID"
+        },
+        "createdBy": {
+          "$ref": "#/definitions/UUID"
+        },
+        "createdDate": {
+          "$ref": "#/definitions/LocalDateTime"
+        },
+        "lastModifiedBy": {
+          "$ref": "#/definitions/UUID"
+        },
+        "lastModifiedDate": {
+          "$ref": "#/definitions/LocalDateTime"
+        }
+      },
+      "required": ["id", "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate"]
+    },
+    "AbstractNamed": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": ["title"]
+    },
+    "RichList": {
+      "type": "object"
+    },
+    "RichListMeta": {
+      "type": "object",
+      "properties": {
+        "collector": {
+          "$ref": "#/definitions/RichList"
+        }
+      },
+      "required": ["collector"]
+    },
+    "RichListItem": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/JsonNode"
+        },
+        "body": {
+          "$ref": "#/definitions/JsonNode"
+        }
+      },
+      "required": ["data", "body"]
+    },
+    "SimpleList": {
+      "type": "object"
+    },
+    "SimpleListItem": {
+      "type": "object",
+      "properties": {
+        "collector": {
+          "$ref": "#/definitions/SimpleList"
+        }
+      },
+      "required": ["collector"]
+    },
+    "DomainMeta": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "$ref": "#/definitions/JsonNode"
+        },
+        "life": {
+          "type": "object"
+        },
+        "body": {
+          "$ref": "#/definitions/JsonNode"
+        }
+      },
+      "required": ["schema", "body"]
+    },
+    "DomainItem": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/JsonNode"
+        },
+        "displayString": {
+          "type": "string"
+        },
+        "cast": {
+          "$ref": "#/definitions/DomainMeta"
+        },
+        "status": {
+          "$ref": "#/definitions/UUID"
+        },
+        "process": {
+          "type": "string"
+        },
+        "sourcePointer": {
+          "$ref": "#/definitions/SourcePointer"
+        },
+        "body": {
+          "$ref": "#/definitions/JsonNode"
+        }
+      },
+      "required": ["data", "displayString", "status", "process", "sourcePointer", "body"]
+    }
+  },
+  "type": "object"
+}

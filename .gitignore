@@ -1,5 +1,4 @@
 *.idea/
 structurizr-*.json
+/target/
 *.vscode/
-*.log
-*.iml

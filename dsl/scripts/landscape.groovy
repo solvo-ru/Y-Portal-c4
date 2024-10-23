@@ -1,43 +1,36 @@
-import com.structurizr.Workspace
 import com.structurizr.api.AdminApiClient
 import com.structurizr.api.WorkspaceApiClient
 import groovy.transform.Field
 import com.structurizr.configuration.WorkspaceScope
 
-@Field static final String STRUCTURIZR_ONPREMISES_URL = 'http://structurizr.solvo.ru'
-@Field static final String ADMIN_API_KEY_PLAINTEXT = 'CozyPlace-36'
-@Field Workspace workspace
+@Field static final STRUCTURIZR_ONPREMISES_URL = 'http://structurizr.solvo.ru'
+@Field static final ADMIN_API_KEY_PLAINTEXT = 'CozyPlace-36'
 
-/**
-*   Find all existing System's workspaces and map their url's to the corresponding landscape's elements 
-*   
-**/
 
-def LandscapeWorkspace = workspace
-def SoftwareSystemWorkspaces = getWorkspaces()
-
-SoftwareSystemWorkspaces.each { subWorkspace ->
-    def softwareSystemFromSubWorkspace = subWorkspace.model.softwareSystems.find { !it.containers.isEmpty() }
-    if (softwareSystemFromSubWorkspace) {
-        LandscapeWorkspace.model.elements.find{
-             getElementKey(it) == softwareSystemFromSubWorkspace.properties['structurizr.dsl.identifier'] 
-        }.setUrl("{workspace:${subWorkspace.id}}/diagrams")
-
+def workspaces = getWorkspaces([2, 3, 4])
+workspaces.each { subWorkspace ->
+    def softwareSystem = subWorkspace.model.softwareSystems.find { !it.containers.isEmpty() }
+    if (softwareSystem) {
+        findElementByKey(workspace, getElementKey(softwareSystem))
+                .setUrl("{workspace:${subWorkspace.id}}/diagrams")
     }
 }
 
-def view = LandscapeWorkspace.views.createSystemLandscapeView("solvo-products", "Экосистема продуктов Solvo");
+def view = workspace.views.createSystemLandscapeView("solvo-products", "Экосистема продуктов Solvo");
 view.addAllElements();
 
-static List getWorkspaces() {
+static List getWorkspaces(List workspaceIds) {
     def adminApiClient = new AdminApiClient("${STRUCTURIZR_ONPREMISES_URL}/api", '', ADMIN_API_KEY_PLAINTEXT)
-
-    def workspaces = adminApiClient.workspaces.collect {
+    def workspaces = adminApiClient.workspaces.findAll { it.id in workspaceIds }
+    return workspaces.collect {
         def workspaceApiClient = new WorkspaceApiClient("${STRUCTURIZR_ONPREMISES_URL}/api", it.apiKey, it.apiSecret)
         workspaceApiClient.workspaceArchiveLocation = null
         workspaceApiClient.getWorkspace(it.id)
     }
-    return workspaces.findAll{it.configuration.scope==WorkspaceScope.SoftwareSystem }
+}
+
+static findElementByKey(def workspace, String key) {
+    workspace.model.elements.find { getElementKey(it) == key }
 }
 
 static String getElementKey(def element) {

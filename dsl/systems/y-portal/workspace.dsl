@@ -4,6 +4,7 @@ workspace extends ../../solvo-landscape.dsl {
     description "[Camunda Edition]"
     properties {
         wiki.document.id GKzQMcy43s
+
     }
     !impliedRelationships true
     !identifiers hierarchical
@@ -11,16 +12,18 @@ workspace extends ../../solvo-landscape.dsl {
     configuration {
         visibility public
         scope softwaresystem
+        users {
+            moarse write
+            guest read
+        }
     }
-    !script ../../scripts/unlandscape.groovy {
 
-    }
     model {
 
         router = person "Логист" {
             -> bpm "Выполняет UserTask" "Zeebe" "leap, command, major"
         }
-        dispatcher = person "Экспедитор" "" {
+        dispatcher = person "Экспедитор" {
             -> bpm "Выполняет UserTask" "Zeebe" "leap, command, major"
         }
         transport = person Водитель {
@@ -39,32 +42,32 @@ workspace extends ../../solvo-landscape.dsl {
 
                     tags browser Solvo Product
                     perspectives {
-                        "Security" "TLS/SSL шифрование"
-                        "Performance" "Быстрая загрузка"
-                        "Scalability" "Горизонтальное масштабирование балансировщиком нагрузки"
-                        "Availability" "Высокая доступность с отказоустойчивостью"
-                        "Regulatory/Compliance" "Соответствует требованиям GDPR"
+                        Security "TLS/SSL шифрование"
+                        Performance "Быстрая загрузка"
+                        Scalability "Горизонтальное масштабирование балансировщиком нагрузки"
+                        Availability "Высокая доступность с отказоустойчивостью"
+                        Regulatory/Compliance "Соответствует требованиям GDPR"
                     }
-                    //-> bpm "Запуск процессов, Выполнение userTask" "Gateway, Zeebe" "leap, command, major"
+
                 }
 
                 app = container "Carrier App" "Мобильное приложение перевозчиков" {
                     tags mobile Solvo Addon future
                     perspectives {
-                        "Security" "Биометрическая аутентификация"
-                        "Scalability" "Поддержка большого количества одновременных пользователей"
-                        "Availability" "Синхронизация с сервером при наличии подключения"
+                        Security "Биометрическая аутентификация"
+                        Scalability "Поддержка большого количества одновременных пользователей"
+                        Availability "Синхронизация с сервером при наличии подключения"
                     }
-                    //-> bpm "Запуск процессов, Выполнение userTask" "Gateway, Zeebe" "leap, message, major"
                 }
 
                 api = container "Public API" "Публичный API Портала" {
                     tags Addon future
+                    technology "OpenAPI 3.1"
                     perspectives {
-                        "Security" "OAuth 2.0"
-                        "Performance" "Низкая задержка"
-                        "Scalability" "Версионирование API"
-                        "Availability" "99.99% времени доступности"
+                        Security "OAuth 2.0"
+                        Performance "Низкая задержка"
+                        Scalability "Версионирование API"
+                        Availability "99.99% времени доступности"
                     }
                 }
             }
@@ -74,10 +77,10 @@ workspace extends ../../solvo-landscape.dsl {
                 description "Шлюз API для маршрутизации запросов"
                 tags bus "Spring Cloud" Tool
                 perspectives {
-                    "Security" "Защита от DDoS атак"
-                    "Performance" "Кэширование для часто используемых эндпоинтов"
-                    "Scalability" "Горизонтальное масштабирование балансировщиком нагрузки"
-                    "Availability" "Активно-активная конфигурация для отказоустойчивости"
+                    Security "Защита от DDoS атак"
+                    Performance "Кэширование для часто используемых эндпоинтов"
+                    Scalability "Горизонтальное масштабирование балансировщиком нагрузки"
+                    Availability "Активно-активная конфигурация для отказоустойчивости"
                 }
             }
             redis = container Redis {
@@ -89,31 +92,29 @@ workspace extends ../../solvo-landscape.dsl {
 
             Group Cloud {
                 !include ../../fragments/cloud.pdsl
-
-            }
+            }            
             apiGateway -> yPortal.consul "Регистрация, конфигурация" "DNS/HTTP" "aux, collect, safe"
             bpm -> yPortal.consul "Регистрация, конфигурация" "DNS/HTTP" "aux, collect, safe"
 
             Group BackEnd {
-                srfpWorker = container ShipmentRFP {
-                    // !docs docs/request
+                shipmentRfpWorker = container ShipmentRfp {
                     properties {
                         wiki.document.id 6V4RDZuJnJ
                     }
-                    description "Сервис заявок на перевозку"
+                    description "Заявки на перевозку"
                     !include ../../fragments/worker-dummy.pdsl
                 }
-                srfpDb = container "Shipment RFP DB" {
+                shipmentRfpDb = container ShipmentRfpDB {
                     technology "PostreSQL 16"
                     tags db Postgres
                     request = component REQUEST "" Table "table"
                     requestSchema = component REQUEST_SCHEMA "" Table "table"
                     request -> requestSchema "schemaId" "FK" "vague"
                 }
-                srfpWorker.repo -> srfpDb "" "JDBC" "safe, sync, major"
+                shipmentRfpWorker.repo -> shipmentRfpDb "" "JDBC" "safe, sync, major"
 
                 offerWorker = container Offer {
-                    description "Сервис предложений"
+                    description "Предложения к заявкам на перевозку"
                     !include ../../fragments/worker-dummy.pdsl
 
                 }
@@ -126,33 +127,20 @@ workspace extends ../../solvo-landscape.dsl {
                 }
                 offerWorker.repo -> offerDb "" "JDBC" "safe, sync, major"
 
-                actorWorker = container Actor {
-                    description "Сервис участников процесса"
-                    !include ../../fragments/worker-dummy.pdsl
-                    tags doubt
-                }
 
-                roleWorker = container "Role" {
-                    !include ../../fragments/worker-dummy.pdsl
-                    tags doubt
-                }
 
                 statusWorker = container Status {
                     description "Сервис статусов"
                     !include ../../fragments/worker-dummy.pdsl
                 }
-                statusDb = container "StatusDB" {
+                statusDb = container StatusDB {
                     technology "PostreSQL 16"
                     tags db Postgres
                 }
                 statusWorker.repo -> statusDb "" "JDBC" "safe, sync, major"
 
-                commentsWorker = container Comments {
-                    !include ../../fragments/worker-dummy.pdsl
-                    tags future Addon
-                }
-
-                notifierService = container Notifier {
+   
+                notifier = container Notifier {
                     description "Сервис уведомлений"
                     !include ../../fragments/worker-dummy.pdsl
                     address = component addresser
@@ -162,75 +150,49 @@ workspace extends ../../solvo-landscape.dsl {
                     -> app "Оповещения" "SSE" "async, message, aux"
                 }
 
-                catalogWorker = container Catalog {
-                    description "Сервис справочников"
+                catalogWorker = container Catalogs {
+                    description "Справочники"
                     !include ../../fragments/worker-dummy.pdsl
                 }
-                catalogDb = container "Catalog DB" {
-                    technology "PostreSQL 16"
-                    tags db Postgres
-
-                    reference = component REFERENCE "Элементы справочников" Table "table"
-                    referenceSchema = component REFERENCE_SCHEMA "Схемы справочников" Table "table"
-                    registry = component REGISTRY "Справочники и списки" Table "table"
-                    item = component ITEM "Элементы списков" Table "table"
-                    reference -> referenceSchema "schemaId" "FK" "vague"
-                    referenceSchema -> registry "registryId" "FK" "vague"
-                    item -> registry "registryId" "FK" "vague"
-                }
-                catalogWorker.repo -> catalogDb "" "JDBC" "safe, sync, major"
-
-                listWorker = container List {
-                    description "Сервис списков"
-                    !include ../../fragments/worker-dummy.pdsl
-                }
-                listDb = container "List DB" {
+                catalogWorkerDb = container CatalogsDB {
                     technology "PostreSQL 16"
                     tags db Postgres
                 }
-                listWorker.repo -> listDb "" "JDBC" "safe, sync, major"
+                catalogWorker.repo -> catalogWorkerDb "" "JDBC" "safe, sync, major"
+                
 
-
-                /***
-                etl = container "ETL" "Инструмент интеграции данных путем трансформации" "Apache Nifi" {
-                    perspectives {
-                        "Security" "Шифрованная передача данных"
-                        "Performance" "Масштабируемая обработка данных"
-                        "Scalability" "Горизонтальное масштабирование"
-                        "Availability" "Высокая доступность с кластеризацией"
-                    }
+                listWorker = container Lists {
+                    description "Списки"
+                    !include ../../fragments/worker-dummy.pdsl
                 }
-
-
-               ***/
-
-
-                //postgres = container "PostgreSQL" "БД для хранения постоянных данных" "PostgreSQL 16"
-                //
-
+                listWorkerDb = container ListsDB {
+                    technology "PostreSQL 16"
+                    tags db Postgres
+                }
+                listWorker.repo -> listWorkerDb "" "JDBC" "safe, sync, major"
+                
 
             }
-
            
         }
 
             development = deploymentEnvironment "Back-End Development" {
                 deploymentNode "ПК разработчика" "" {
                     deploymentNode "Docker Engine" {
-                        deploymentNode "Воркеры" " " "Docker Compose" {
-                            containerInstance yPortal.srfpWorker
+                        deploymentNode Воркеры "" "Docker Compose" {
+                            containerInstance yPortal.shipmentRfpWorker
                             containerInstance yPortal.offerWorker
-                            containerInstance yPortal.notifierService
+                            containerInstance yPortal.notifier
                             containerInstance yPortal.catalogWorker
-                            containerInstance yPortal.listWorker
+                            containerInstance yPortal.shipmentWorker
                         }
-                        deploymentNode "Cloud" "Docker-контейнер" "Ubuntu 22.10" {
+                        deploymentNode Cloud "Docker-контейнер" "Ubuntu 22.10" {
                             containerInstance yPortal.consul
                             containerInstance yPortal.apiGateway
                         }
                     }
                 }
-                deploymentNode "Dev-стенд " "" {
+                deploymentNode "Dev-стенд" "" {
                     deploymentNode "Docker Engine" {
                         deploymentNode "Camunda" "" "Docker Compose" {
                             softwareSystemInstance bpm
@@ -243,21 +205,6 @@ workspace extends ../../solvo-landscape.dsl {
                         infrastructureNode "NGinx"
                     }
                 }
-            }
-
-        // Production environment using Kubernetes
-            production = deploymentEnvironment "Production" {
-        //     // deploymentGroup "Kubernetes Cluster" {
-        //     //     deploymentNode "Kubernetes Master" {
-        //     //         // ...
-        //     //     }
-        //     //     deploymentNode "Kubernetes Node" {
-        //     //         // ...
-        //     //         // containerInstance trWorker {
-        //     //         //     // ...
-        //     //         // }
-        //     //         // ... Other container instances
-        //     //     }
             }
         
             yPortal.apiGateway -> bpm "Передача в БП" "gRPC" "sync, major, command, super"
@@ -275,9 +222,6 @@ workspace extends ../../solvo-landscape.dsl {
             yPortal.app -> iam "Получение токена" "JWT" "check, sync, major, leap"
             yPortal.apiGateway -> iam "Проверка токена" "JWT" "check, sync, major"
             bpm -> yms "Создает автовизит" "" "leap, vague, major"
-
-        
-
     }
 
     views {
@@ -323,29 +267,28 @@ workspace extends ../../solvo-landscape.dsl {
             include *
         }
 
-        component yPortal.srfpWorker request-structure "Компоненты микросервиса 'Заявка на перевозку'" {
+        component yPortal.shipmentRfpWorker request-structure "Компоненты микросервиса 'Заявка на перевозку'" {
             title "Заявка на перевозку"
               include *
             exclude bpm->*
         }
 
-        component yPortal.srfpWorker request-infra-structure "Компоненты инфраструктуры на примере микросервиса 'Заявка на перевозку'" {
+        component yPortal.shipmentRfpWorker request-infra-structure "Компоненты инфраструктуры на примере микросервиса 'Заявка на перевозку'" {
             title "Spring Cloud"
             include *
             include "element.tag==infra && element.parent==yPortal"
             exclude element==bpm
         }
 
-        component yPortal.catalogDb api-to-db "Схема ветвления запросов на примере сервиса Reference" {
+        component yPortal.catalogWorkerDb api-to-db "Схема ветвления запросов на примере сервиса Catalogs" {
             title "Потоки данных"
             include element==yPortal.web
             include element==yPortal.apiGateway
             include element==bpm
             //include element==yPortal.catalogWorker
             include element.parent==yPortal.catalogWorker
-            include element.parent==yPortal.catalogDb
+            include element.parent==yPortal.catalogWorkerDb
             exclude element.tag==infra
         }
-
     }
 }
